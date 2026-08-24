@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light" />
+    <title>Jima render harness</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        background: #fff;
+      }
+      #stage {
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <!--
+      Headless render harness for golden-frame + export-smoke tests.
+      Driven by Playwright with query params (template, aspect, t).
+      Wired up in Phase 1 (packages/engine + T01).
+    -->
+    <div id="stage"></div>
+    <script type="module" src="/harness/main.ts"></script>
+  </body>
+</html>

@@ -1,0 +1,24 @@
+<!--
+  The Jima mark on its own ground.
+
+  The previous favicon was the bare mark filled near-black on transparency,
+  which disappeared entirely in a dark browser tab strip. Painting the tile
+  ourselves — void ground, lime mark — means it reads the same in a light tab
+  bar, a dark one, and a bookmark grid.
+
+  The artwork sits in a 500x508 box (see JimaLogo.tsx); the 512 canvas below
+  frames it with a small, even margin.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="112" fill="#08090B" />
+  <g transform="translate(80, 30) scale(0.7) translate(0, -138)">
+    <path
+      d="M478.78 140H255.27C244.224 140 235.27 148.954 235.27 160V383.51C235.27 394.556 244.224 403.51 255.27 403.51H478.78C489.825 403.51 498.78 394.556 498.78 383.51V160C498.78 148.954 489.825 140 478.78 140Z"
+      fill="#C8FF3D"
+    />
+    <path
+      d="M215.269 403.51H20.0392C2.2192 403.51 -6.7008 425.05 5.8992 437.65L201.129 632.88C213.729 645.48 235.269 636.56 235.269 618.74V423.51C235.269 412.46 226.319 403.51 215.269 403.51Z"
+      fill="#C8FF3D"
+    />
+  </g>
+</svg>

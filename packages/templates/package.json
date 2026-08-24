@@ -1,0 +1,21 @@
+{
+  "name": "@jima/templates",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Jima Motion launch template library.",
+  "exports": {
+    ".": "./src/index.ts",
+    "./durations": "./src/durations.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@jima/engine": "workspace:*",
+    "pixi.js": "^8.19.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.3"
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "name": "jima",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Jima — one home for Jima Captions and Jima Motion. Free, no account, 100% in your browser.",
+  "type": "module",
+  "packageManager": "pnpm@10.33.0",
+  "engines": {
+    "node": ">=20.11"
+  },
+  "scripts": {
+    "predev": "node scripts/copy-ort-wasm.mjs",
+    "dev": "pnpm --filter @jima/web dev",
+    "prebuild": "node scripts/copy-ort-wasm.mjs",
+    "build": "pnpm --filter @jima/web build",
+    "postbuild": "node scripts/prune-ort-assets.mjs",
+    "preview": "pnpm --filter @jima/web preview",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:golden": "playwright test",
+    "check": "pnpm typecheck && pnpm lint && pnpm test && pnpm build"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "@tailwindcss/oxide"
+    ]
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.12.1",
+    "@eslint/js": "^9.20.0",
+    "@playwright/test": "^1.50.1",
+    "@types/node": "^22.13.4",
+    "eslint": "^9.20.1",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "globals": "^15.15.0",
+    "jsdom": "^25.0.1",
+    "typescript": "^5.7.3",
+    "typescript-eslint": "^8.24.1",
+    "vitest": "^4.1.10"
+  }
+}

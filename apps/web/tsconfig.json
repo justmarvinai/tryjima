@@ -1,0 +1,17 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "types": ["node", "vite/client"],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@jima/engine": ["../../packages/engine/src/index.ts"],
+      "@jima/engine/*": ["../../packages/engine/src/*"],
+      "@jima/templates": ["../../packages/templates/src/index.ts"],
+      "@jima/captions": ["../../packages/captions/src/index.ts"],
+      "@jima/captions/*": ["../../packages/captions/src/*/index.ts"]
+    }
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx", "vite.config.ts", "harness/**/*.ts"]
+}

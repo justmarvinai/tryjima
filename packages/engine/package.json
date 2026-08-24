@@ -1,0 +1,23 @@
+{
+  "name": "@jima/engine",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Jima Motion deterministic render + export engine (Pixi v8 + JimaTimeline).",
+  "exports": {
+    ".": "./src/index.ts",
+    "./timeline": "./src/timeline/index.ts",
+    "./export": "./src/export/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "pixi.js": "^8.19.0",
+    "mediabunny": "^1.50.9",
+    "gifenc": "^1.0.3"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.3"
+  }
+}

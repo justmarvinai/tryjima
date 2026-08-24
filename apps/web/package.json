@@ -1,0 +1,69 @@
+{
+  "name": "@jima/web",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview --port 4173",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@fontsource-variable/archivo": "^5.3.0",
+    "@fontsource-variable/geist": "^5.3.0",
+    "@fontsource-variable/geist-mono": "^5.3.0",
+    "@fontsource-variable/parkinsans": "^5.3.0",
+    "@fontsource/anton": "^5.3.0",
+    "@fontsource/archivo": "^5.3.0",
+    "@fontsource/fraunces": "^5.3.0",
+    "@fontsource/inter": "^5.3.0",
+    "@fontsource/jetbrains-mono": "^5.3.0",
+    "@fontsource/noto-emoji": "^5.3.0",
+    "@fontsource/outfit": "^5.3.0",
+    "@fontsource/parkinsans": "^5.3.0",
+    "@fontsource/plus-jakarta-sans": "^5.3.0",
+    "@fontsource/poppins": "^5.3.0",
+    "@fontsource/sora": "^5.3.0",
+    "@fontsource/space-grotesk": "^5.3.0",
+    "@jima/captions": "workspace:*",
+    "@jima/engine": "workspace:*",
+    "@jima/templates": "workspace:*",
+    "@huggingface/transformers": "^4.2.0",
+    "mediabunny": "^1.50.9",
+    "pixi.js": "^8.19.0",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "react-router-dom": "^7.18.1",
+    "zustand": "^5.0.14"
+  },
+  "devDependencies": {
+    "@size-limit/file": "^11.1.6",
+    "@tailwindcss/vite": "^4.3.3",
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2",
+    "@vitejs/plugin-react": "^6.0.3",
+    "onnxruntime-web": "1.26.0-dev.20260416-b7804b056c",
+    "size-limit": "^11.1.6",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^5.7.3",
+    "vite": "^8.1.5"
+  },
+  "size-limit": [
+    {
+      "name": "landing initial (app shell + landing route, excl. lazy tool chunks)",
+      "path": [
+        "dist/assets/index-*.js",
+        "dist/assets/Landing-*.js"
+      ],
+      "limit": "200 kB"
+    },
+    {
+      "name": "hero strip chunk (lazy live-template preview row, loads after first paint)",
+      "path": [
+        "dist/assets/HeroStrip-*.js"
+      ],
+      "limit": "20 kB"
+    }
+  ]
+}

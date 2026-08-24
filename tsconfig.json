@@ -1,0 +1,9 @@
+{
+  "//": "Solution-style root for editors. Each package is type-checked via `pnpm -r typecheck`. Vite bundles workspace packages from source; no composite build is used.",
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true
+  },
+  "include": [],
+  "exclude": ["**/node_modules", "**/dist"]
+}

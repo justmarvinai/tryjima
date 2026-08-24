@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Unit tests
+        run: pnpm test
+
+      - name: Build
+        run: pnpm build
+
+      - name: Size budgets
+        run: pnpm --filter @jima/web exec size-limit
+
+      - name: License policy
+        run: pnpm dlx license-checker-rseidelsohn --production --onlyAllow "MIT;MIT OR X11;Apache-2.0;Apache 2.0;BSD-2-Clause;BSD-3-Clause;ISC;MPL-2.0;0BSD;CC0-1.0;Unlicense;BlueOak-1.0.0;OFL-1.1;Python-2.0" --excludePackages "jima-motion;@jima/web;@jima/engine;@jima/templates"
+
+  golden:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - name: Install
+        run: pnpm install --frozen-lockfile
+      - name: Install Playwright browser
+        run: pnpm exec playwright install --with-deps chromium
+      - name: Golden-frame + export-smoke tests
+        run: pnpm test:golden

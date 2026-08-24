@@ -1,0 +1,565 @@
+@import "tailwindcss";
+
+/*
+ * ============================================================================
+ * Jima design system — "Nocturne"
+ * ============================================================================
+ *
+ * One visual language for the whole product: the jima.tools landing, Jima
+ * Captions and Jima Motion. See docs/DESIGN_SYSTEM.md for the full spec.
+ *
+ * The idea in one line: **dark shell, light canvas.** Every piece of chrome —
+ * nav, panels, rails, inspectors, modals — is near-black, so the only bright
+ * things on screen are the user's own work (the video stage, the artboard, a
+ * poster thumbnail) and the single electric-lime accent. That is what makes an
+ * editor feel like an instrument rather than a document.
+ *
+ * Both predecessor products were light-mode with their own accent (Motion:
+ * emerald + Parkinsans; Captions: indigo→violet gradient + Space Grotesk).
+ * Neither survives. The legacy Motion token NAMES do survive, aliased at the
+ * bottom of @theme onto the new values, so ~700 existing utility usages across
+ * the Studio restyle from one place instead of one-by-one. Anywhere the alias
+ * would be semantically wrong (a `text-white` label on what is now a lime fill,
+ * a `bg-ink` scrim that is now light) the call site was fixed by hand.
+ */
+
+@theme {
+  /* ---------------------------------------------------------------- *
+   * Base — the dark shell. Neutral, very slightly cool. No hue tint
+   * beyond a couple of points of blue so lime reads warm against it.
+   * ---------------------------------------------------------------- */
+  --color-void: #08090b; /* page background, deepest ground */
+  --color-base: #0b0d10; /* app chrome background */
+  --color-surface: #111419; /* panels, cards, rails */
+  --color-surface-2: #171b21; /* raised: inputs, hover fills */
+  --color-surface-3: #1e232b; /* pressed / selected fills */
+  --color-line: #262b33; /* hairline borders */
+  --color-line-2: #343b45; /* stronger dividers on raised surfaces */
+
+  /* ---------------------------------------------------------------- *
+   * Text on dark. Every value below is checked against --color-void:
+   * chalk 17.8:1 · silver 11.4:1 · ash 7.2:1 · dim 4.8:1.
+   * `dim` is the floor — never put body copy below it.
+   * ---------------------------------------------------------------- */
+  --color-chalk: #f2f3f5; /* primary text, headings */
+  --color-silver: #c2c6ce; /* strong body */
+  --color-ash: #9aa0aa; /* secondary body */
+  --color-dim: #7c828d; /* tertiary, placeholders, captions */
+
+  /* ---------------------------------------------------------------- *
+   * Electric lime — THE accent. Owns both products.
+   * 16.7:1 on void, and 17.8:1 against black text sitting on top of it,
+   * so a lime fill always takes a --color-void label, never white.
+   * ---------------------------------------------------------------- */
+  --color-lime: #c8ff3d;
+  --color-lime-bright: #deff8c; /* hover / highlight */
+  --color-lime-deep: #a5db1e; /* pressed */
+  --color-lime-dim: #86b016; /* lime on a LIGHT canvas (4.6:1 on white) */
+  --color-lime-tint: #1a2410; /* dark tinted accent surface */
+  --color-lime-tint-2: #22300f; /* hover on a tinted accent surface */
+
+  /* ---------------------------------------------------------------- *
+   * Light canvas — the user's work. These stay light in a dark app.
+   * ---------------------------------------------------------------- */
+  --color-paper: #ffffff;
+  --color-paper-2: #f4f4f5;
+  --color-paper-3: #e6e7ea;
+
+  /* ---------------------------------------------------------------- *
+   * Supporting hues. Decorative only — tags, chips, illustration,
+   * data accents. Lime is the accent; these never compete with it.
+   * The `-tint` values are dark surfaces that take chalk text.
+   * ---------------------------------------------------------------- */
+  --color-violet: #a78bfa;
+  --color-violet-tint: #191634;
+  --color-cyan: #67e8f9;
+  --color-cyan-tint: #0d2830;
+  --color-amber: #fbbf24;
+  --color-amber-tint: #2a1f08;
+  --color-coral: #ff7a5a;
+  --color-coral-tint: #2d1410;
+  --color-mint: #5eead4;
+  --color-mint-tint: #0c2a26;
+  --color-pink: #f472b6;
+  --color-pink-tint: #2b1122;
+  --color-indigo: #818cf8;
+  --color-indigo-tint: #171a35;
+
+  /* ---------------------------------------------------------------- *
+   * Semantic
+   * ---------------------------------------------------------------- */
+  --color-success: #7be38b;
+  --color-success-tint: #0d2716;
+  --color-warning: #fbbf24;
+  --color-warning-tint: #2a1f08;
+  --color-error: #ff6b6b;
+  --color-error-tint: #2d1113;
+
+  /* ---------------------------------------------------------------- *
+   * Typography
+   *
+   * Archivo (variable, wght + wdth) for display: set slightly EXPANDED
+   * and heavy it gives the wide, chunky poster headline this brand runs
+   * on. Geist for UI — neutral and crisp at 12-16px on dark, where a
+   * quirkier face turns to mush. Geist Mono for anything numeric:
+   * timecodes, durations, dimensions, bitrates, counts.
+   *
+   * Deliberately none of the predecessor faces (Parkinsans, Space
+   * Grotesk, Inter) drive chrome any more — those remain available to
+   * USERS as template/caption fonts, which is a different job.
+   * ---------------------------------------------------------------- */
+  --font-display: "Archivo Variable", "Archivo", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Geist Variable", "Geist", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: "Geist Mono Variable", "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* ---------------------------------------------------------------- *
+   * Radii — crisp, not pill-soft. Bento is the oversized landing tile.
+   * ---------------------------------------------------------------- */
+  --radius-input: 10px;
+  --radius-card: 14px;
+  --radius-panel: 18px;
+  --radius-modal: 22px;
+  --radius-bento: 28px;
+
+  /* ---------------------------------------------------------------- *
+   * Elevation. On near-black a drop shadow barely reads, so depth comes
+   * from a light hairline on top plus a deep, wide shadow underneath.
+   * `glow` is reserved for the accent (focused / active / primary).
+   * ---------------------------------------------------------------- */
+  --shadow-xs: 0 1px 2px rgb(0 0 0 / 45%);
+  --shadow-card: 0 1px 0 rgb(255 255 255 / 4%) inset, 0 2px 4px rgb(0 0 0 / 35%), 0 12px 32px rgb(0 0 0 / 35%);
+  --shadow-pop: 0 0 0 1px rgb(255 255 255 / 5%), 0 24px 60px rgb(0 0 0 / 60%);
+  --shadow-glow: 0 0 0 1px rgb(200 255 61 / 22%), 0 10px 40px rgb(200 255 61 / 14%);
+  --shadow-bold: 0 2px 0 rgb(0 0 0 / 55%), 0 18px 44px rgb(0 0 0 / 50%);
+  /* For the light canvas: a real shadow, because there the ground is white. */
+  --shadow-stage: 0 4px 12px rgb(0 0 0 / 45%), 0 24px 64px rgb(0 0 0 / 55%);
+
+  /* ---------------------------------------------------------------- *
+   * Motion
+   * ---------------------------------------------------------------- */
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* ================================================================ *
+   * LEGACY ALIASES — Jima Motion's v2 token names, repointed at the
+   * dark system. Keeping them means the Studio's existing utility
+   * classes (bg-paper, text-slate, border-mist, …) restyle here rather
+   * than in 100+ files. New code should use the names above.
+   * ================================================================ */
+  --color-porcelain: #08090b; /* was app background white   → void    */
+  --color-canvas: #0b0d10; /* was off-white band         → base    */
+  --color-subtle: #171b21; /* was #f4f4f5 muted fill     → surf-2  */
+  --color-mist: #262b33; /* was hairline grey          → line    */
+  --color-ink: #f2f3f5; /* was near-black text        → chalk   */
+  --color-graphite: #c2c6ce; /* was strong body            → silver  */
+  --color-slate: #9aa0aa; /* was secondary body         → ash     */
+  --color-muted: #7c828d; /* was tertiary               → dim     */
+  --color-emerald: #c8ff3d; /* the old brand accent       → lime    */
+  --color-emerald-bright: #deff8c;
+  --color-emerald-tint: #1a2410;
+  --color-emerald-ring: #c8ff3d;
+  --color-primary: #c8ff3d;
+  --color-primary-strong: #c8ff3d; /* fills take a VOID label, never white */
+  --color-primary-press: #a5db1e;
+  --color-ember: #c8ff3d;
+  --color-ember-deep: #a5db1e;
+  --color-ember-text: #c8ff3d;
+  --color-ember-tint: #1a2410;
+
+  /* Scrim tokens. `bg-ink/60` used to be a dark veil over a poster; ink
+     is light now, so those call sites moved to these. */
+  --color-scrim: #08090b;
+  --color-scrim-soft: #0b0d10;
+}
+
+/* ==================================================================== *
+ * Element defaults
+ * ==================================================================== */
+
+:root {
+  color-scheme: dark;
+  /* Sticky-header offset for in-page anchors. */
+  scroll-padding-top: 5.5rem;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-rendering: optimizeLegibility;
+  scroll-behavior: smooth;
+  background: var(--color-void);
+}
+
+body {
+  margin: 0;
+  background: var(--color-void);
+  color: var(--color-chalk);
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Display type. Archivo is set slightly expanded (wdth 108) and tight —
+   the wide-and-heavy combination is the brand's signature. */
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  font-stretch: 108%;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.06;
+  text-wrap: balance;
+}
+
+::selection {
+  background: var(--color-lime);
+  color: var(--color-void);
+}
+
+/* Visible focus ring — lime, which clears 3:1 against every surface token. */
+:focus-visible {
+  outline: 2px solid var(--color-lime);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* Dark form controls: without this the UA paints light native widgets. */
+input,
+textarea,
+select,
+button {
+  font: inherit;
+  color: inherit;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--color-dim);
+}
+
+/* Quiet scrollbars that belong to the dark chrome. */
+* {
+  scrollbar-color: var(--color-line-2) transparent;
+  scrollbar-width: thin;
+}
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-line-2);
+  border: 3px solid transparent;
+  background-clip: content-box;
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #454d59;
+  background-clip: content-box;
+}
+
+/* Range inputs — used by the caption style panel, the Studio inspector and
+   both transport scrubbers, so they are styled once, here. */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 20px;
+  background: transparent;
+  cursor: pointer;
+}
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 999px;
+  background: var(--color-line-2);
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  margin-top: -6px;
+  height: 16px;
+  width: 16px;
+  border-radius: 999px;
+  background: var(--color-lime);
+  border: none;
+  box-shadow: 0 0 0 3px var(--color-base);
+  transition: transform 0.15s var(--ease-out-soft);
+}
+input[type="range"]:hover::-webkit-slider-thumb {
+  transform: scale(1.14);
+}
+input[type="range"]::-moz-range-track {
+  height: 4px;
+  border-radius: 999px;
+  background: var(--color-line-2);
+}
+input[type="range"]::-moz-range-thumb {
+  height: 16px;
+  width: 16px;
+  border: none;
+  border-radius: 999px;
+  background: var(--color-lime);
+  box-shadow: 0 0 0 3px var(--color-base);
+}
+input[type="range"]:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+input[type="range"]:disabled::-webkit-slider-thumb {
+  background: var(--color-line-2);
+}
+input[type="range"]:disabled::-moz-range-thumb {
+  background: var(--color-line-2);
+}
+
+/* Native color swatch, de-chromed so it reads as one of our own controls. */
+input[type="color"] {
+  -webkit-appearance: none;
+  appearance: none;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+input[type="color"]::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+input[type="color"]::-webkit-color-swatch {
+  border: none;
+  border-radius: 8px;
+}
+input[type="color"]::-moz-color-swatch {
+  border: none;
+  border-radius: 8px;
+}
+
+/* ==================================================================== *
+ * Utilities
+ * ==================================================================== */
+
+/* Oversized hero/section headline: wider, heavier, tighter than default h1. */
+@utility headline-xl {
+  font-family: var(--font-display);
+  font-stretch: 112%;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 0.94;
+}
+
+/* The lime fill's label colour. Semantic shorthand so no call site has to
+   remember that white-on-lime is a 1.1:1 contrast failure. */
+@utility text-on-lime {
+  color: var(--color-void);
+}
+
+/* The light artboard/video stage floating on dark chrome. */
+@utility stage-surface {
+  background: var(--color-paper);
+  box-shadow: var(--shadow-stage);
+}
+
+/* Dotted ground the artboard sits on — the "workbench" texture. */
+@utility stage-dots {
+  background-color: var(--color-base);
+  background-image: radial-gradient(circle at 1px 1px, var(--color-line-2) 1px, transparent 0);
+  background-size: 22px 22px;
+}
+
+/* Fine grid ground, used behind the landing hero and empty states. */
+@utility grid-lines {
+  background-color: var(--color-void);
+  background-image:
+    linear-gradient(to right, rgb(255 255 255 / 3.5%) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(255 255 255 / 3.5%) 1px, transparent 1px);
+  background-size: 64px 64px;
+}
+
+/* Lime text that fades to bright at the tail — used once per page, max. */
+@utility text-gradient-lime {
+  background-image: linear-gradient(100deg, var(--color-lime) 0%, var(--color-lime-bright) 55%, var(--color-mint) 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+/* A hairline that catches light at the top of a raised dark surface. */
+@utility edge-light {
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 6%);
+}
+
+/*
+ * Horizontal edge fade for rails wider than their container (template
+ * marquee, hero carousel). A mask, not two opaque gradient overlays: the
+ * content genuinely dissolves, so it needs no colour matching against
+ * whatever is behind it. Each side is separately overridable so a scroller
+ * can drop the fade on a side it has run out of content for — a visible fade
+ * always means "there is more this way".
+ */
+@utility edge-fade-x {
+  --edge-fade: clamp(28px, 7%, 96px);
+  --edge-fade-l: var(--edge-fade);
+  --edge-fade-r: var(--edge-fade);
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    #000 var(--edge-fade-l),
+    #000 calc(100% - var(--edge-fade-r)),
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    #000 var(--edge-fade-l),
+    #000 calc(100% - var(--edge-fade-r)),
+    transparent 100%
+  );
+}
+
+/* Panel scroll areas inside the tools keep the scrollbar out of the layout. */
+@utility panel-scroll {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* ==================================================================== *
+ * Motion layer
+ * ==================================================================== */
+
+/* Scroll reveal — the <Reveal> wrapper toggles .is-in on intersection. */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 0.7s var(--ease-out-expo),
+    transform 0.7s var(--ease-out-expo);
+  will-change: opacity, transform;
+}
+.reveal.is-in {
+  opacity: 1;
+  transform: none;
+}
+.reveal-scale {
+  transform: translateY(22px) scale(0.97);
+}
+
+/* Animated marker swipe behind a word. Lime at low alpha keeps the chalk
+   text above it well clear of 4.5:1. */
+.marker-hl {
+  position: absolute;
+  inset: 0.52em -0.16em 0.05em;
+  z-index: 0;
+  border-radius: 0.28em;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.55s var(--ease-out-expo) 0.15s;
+}
+.marker-hl.is-in {
+  transform: scaleX(1);
+}
+
+@keyframes jima-marquee-left {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+@keyframes jima-marquee-right {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+@keyframes jima-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+@keyframes jima-fade-in {
+  from {
+    opacity: 0;
+    transform: scale(1.015);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes jima-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes jima-shimmer {
+  0% {
+    transform: translateX(-120%) skewX(-12deg);
+  }
+  60%,
+  100% {
+    transform: translateX(320%) skewX(-12deg);
+  }
+}
+@keyframes jima-pulse-glow {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+/* Caret blink for the hero's "typing" demo. */
+@keyframes jima-caret {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+.float-slow {
+  animation: jima-float 7s ease-in-out infinite;
+}
+.float-slower {
+  animation: jima-float 10s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Never hide reveal content or animate decoration when motion is reduced. */
+  .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  .marker-hl {
+    transform: scaleX(1) !important;
+    transition: none !important;
+  }
+  .float-slow,
+  .float-slower {
+    animation: none !important;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

@@ -1,0 +1,36 @@
+# dependencies
+node_modules/
+.pnpm-store/
+
+# build output
+dist/
+build/
+*.tsbuildinfo
+
+# test artifacts
+coverage/
+test-results/
+playwright-report/
+tests/**/__screenshots__/**/*-actual.png
+tests/**/__screenshots__/**/*-diff.png
+
+# vercel
+.vercel/
+
+# editor / OS
+.DS_Store
+*.log
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# env
+.env
+.env.local
+.env.*.local
+
+# temporary QA/scratch specs (prefix _), not part of the suite
+tests/_*.spec.ts
+
+# generated: onnxruntime-web runtime copied from node_modules at pre(dev|build)
+apps/web/public/ort/
