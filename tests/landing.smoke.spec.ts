@@ -33,17 +33,27 @@ test("the tools menu lists both products", async ({ page }) => {
 
 // The hero cards are the only links labelled "Edit <template>", so their shared
 // parent is the carousel rail. Read it with page.evaluate rather than
-// locator.evaluate: inside expect.poll a locator re-resolves, and its
-// actionability wait never settles once the card has been paged out of the
-// rail's visible strip.
+// locator.evaluate: inside a poll a locator re-resolves, and its actionability
+// wait never settles once the card has been paged out of the rail's visible
+// strip.
 const railScrollLeft = () =>
   (document.querySelector('a[aria-label^="Edit "]')?.parentElement as HTMLElement | null)?.scrollLeft ?? -1;
 
+/*
+ * Paging is a *smooth* scroll unless the visitor asked for reduced motion, and
+ * this headless build reports `prefers-reduced-motion: reduce` as false even
+ * when Playwright emulates it — so the animation really does run here, and on
+ * a loaded SwiftShader box it can take a couple of seconds. Every assertion
+ * below therefore polls for the settled value with a generous timeout; a single
+ * sample catches the rail mid-flight and reads whatever intermediate position
+ * it happened to be at (0, 101 and 837 have all been seen for the same click).
+ */
+const SCROLL_SETTLE_MS = 15_000;
+
 test.describe("hero carousel", () => {
-  // Reduced motion makes the rail jump instead of animating. Here that is the
-  // point: WebGL runs on SwiftShader, so a rAF-driven smooth scroll competing
-  // with a dozen live previews can still be mid-flight seconds later. It also
-  // pins the reduced-motion branch (poster frames, no live contexts).
+  // Asking for reduced motion still exercises the branch that skips the live
+  // WebGL previews and leaves poster frames — worth having on a rail that
+  // would otherwise spin up a dozen contexts under SwiftShader.
   test.use({ reducedMotion: "reduce" });
 
   test("arrows page through more templates", async ({ page }) => {
@@ -53,9 +63,16 @@ test.describe("hero carousel", () => {
     expect(await scrolled()).toBe(0);
 
     await page.getByRole("button", { name: "Show more templates" }).click();
-    await expect.poll(scrolled, { timeout: 5000 }).toBeGreaterThan(200);
-    await page.getByRole("button", { name: "Show previous templates" }).click();
-    await expect.poll(scrolled, { timeout: 5000 }).toBe(0);
+    await expect.poll(scrolled, { timeout: SCROLL_SETTLE_MS }).toBeGreaterThan(200);
+
+    // Wait for the rail to re-render with the left arrow live before clicking
+    // it. The arrow is inert (`aria-disabled`, and its handler returns early)
+    // until the scroll handler has told React the rail is no longer at its
+    // start — click inside that window and the press is simply swallowed.
+    const back = page.getByRole("button", { name: "Show previous templates" });
+    await expect(back).toHaveAttribute("aria-disabled", "false");
+    await back.click();
+    await expect.poll(scrolled, { timeout: SCROLL_SETTLE_MS }).toBe(0);
   });
 });
 

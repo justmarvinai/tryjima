@@ -133,6 +133,13 @@ Requires Node ≥ 20.11 and pnpm 10. Run `pnpm install` once.
   `--color-base` hijacked the built-in `text-base` font-size utility, turning
   every `text-base` into near-black text on a near-black panel. It is
   `--color-shell` now.
+- **Never override a component variant's own utilities through `className`.**
+  Tailwind picks the winner by the order it emits utilities, not the order you
+  wrote them, so an override is a coin flip: `.text-void` is emitted after
+  `.text-lime`, `.inline-flex` after `.hidden`. Both shipped bugs — the closing
+  CTA rendered a void label on a void pill, and a responsive `hidden` never hid
+  anything. Need a different colour? Add a variant. Need a responsive `hidden`?
+  Put it on a wrapper.
 - **White on lime is 1.06:1.** Every accent fill takes a `--color-void` label.
 - Check text contrast against the **lightest** surface a token can land on
   (`--color-surface-3`), not against the page ground.

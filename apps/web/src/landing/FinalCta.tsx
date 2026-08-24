@@ -32,10 +32,7 @@ export function FinalCta() {
         <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <Link
             to="/captions"
-            className={cn(
-              buttonClasses("chalk", "lg"),
-              "group bg-void text-lime hover:bg-surface hover:text-lime-bright active:bg-surface",
-            )}
+            className={cn(buttonClasses("onAccent", "lg"), "group")}
           >
             <CaptionsIcon width={18} height={18} />
             Jima Captions
@@ -43,10 +40,7 @@ export function FinalCta() {
           </Link>
           <Link
             to="/motion"
-            className={cn(
-              buttonClasses("secondary", "lg"),
-              "group bg-transparent text-void ring-2 ring-void/25 hover:bg-void/10 hover:text-void hover:ring-void/40",
-            )}
+            className={cn(buttonClasses("onAccentQuiet", "lg"), "group")}
           >
             <MotionIcon width={18} height={18} />
             Jima Motion

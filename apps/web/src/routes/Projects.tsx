@@ -169,7 +169,7 @@ export default function Projects() {
                     <p className="text-xs text-dim">
                       Stored in this browser. Clearing your site data removes all of it.
                     </p>
-                    <Button variant="ghost" size="sm" className="ml-auto text-dim" onClick={() => setConfirmWipe(true)}>
+                    <Button variant="ghost" size="sm" className="ml-auto" onClick={() => setConfirmWipe(true)}>
                       <TrashIcon width={15} height={15} />
                       Clear all projects
                     </Button>

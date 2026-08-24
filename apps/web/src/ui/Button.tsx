@@ -1,7 +1,7 @@
 import { forwardRef, type ButtonHTMLAttributes } from "react";
 import { cn } from "./cn";
 
-export type ButtonVariant = "primary" | "chalk" | "secondary" | "ghost" | "danger";
+export type ButtonVariant = "primary" | "chalk" | "secondary" | "ghost" | "danger" | "onAccent" | "onAccentQuiet";
 export type ButtonSize = "xs" | "sm" | "md" | "lg";
 
 /*
@@ -20,6 +20,14 @@ const VARIANTS: Record<ButtonVariant, string> = {
   ghost: "bg-transparent text-ash hover:bg-surface-2 hover:text-chalk",
   // Destructive.
   danger: "bg-error-tint text-error ring-1 ring-inset ring-error/30 hover:bg-error hover:text-void",
+  // The two below are for buttons sitting ON the lime band, where the usual
+  // figure/ground is inverted. They exist as variants rather than as colour
+  // overrides on `chalk`/`secondary` for the reason in the note above the BASE
+  // string: an override loses to the variant whenever Tailwind happens to emit
+  // the variant's utility later, which is precisely how the closing CTA shipped
+  // with a black label on a black pill.
+  onAccent: "bg-void text-lime hover:bg-shell hover:text-lime-bright active:bg-shell shadow-xs",
+  onAccentQuiet: "bg-transparent text-void ring-2 ring-inset ring-void/25 hover:bg-void/10 hover:ring-void/45",
 };
 
 const SIZES: Record<ButtonSize, string> = {
@@ -30,10 +38,22 @@ const SIZES: Record<ButtonSize, string> = {
 };
 
 /*
- * NOTE: `inline-flex` here means a responsive `hidden` passed through
- * `className` will NOT hide the button — Tailwind emits `.inline-flex` after
- * `.hidden`, so the later rule wins regardless of the order you wrote them in.
- * Put the responsive display class on a WRAPPER element instead.
+ * NOTE — this applies to EVERY utility a variant already sets, not just the
+ * ones below.
+ *
+ * Tailwind decides which of two competing utilities wins by the order it emits
+ * them in its stylesheet, NOT by the order you wrote them in `className`. So a
+ * class passed through `className` that collides with one the variant already
+ * sets is a coin flip: `.text-void` happens to be emitted after `.text-lime`,
+ * `.inline-flex` after `.hidden`.
+ *
+ * Both of those shipped bugs here — a lime label that rendered void-on-void,
+ * and a responsive `hidden` that never hid anything. So:
+ *
+ *   - need a different colour?  add a VARIANT (see `onAccent` below)
+ *   - need a responsive `hidden`?  put it on a WRAPPER element
+ *
+ * Never override a variant's own colours or display through `className`.
  */
 const BASE =
   "inline-flex select-none items-center justify-center font-semibold transition-all duration-150 " +
