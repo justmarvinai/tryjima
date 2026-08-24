@@ -29,6 +29,12 @@ const SIZES: Record<ButtonSize, string> = {
   lg: "h-13 gap-2.5 px-7 text-base rounded-xl",
 };
 
+/*
+ * NOTE: `inline-flex` here means a responsive `hidden` passed through
+ * `className` will NOT hide the button — Tailwind emits `.inline-flex` after
+ * `.hidden`, so the later rule wins regardless of the order you wrote them in.
+ * Put the responsive display class on a WRAPPER element instead.
+ */
 const BASE =
   "inline-flex select-none items-center justify-center font-semibold transition-all duration-150 " +
   "active:translate-y-px disabled:pointer-events-none disabled:opacity-40";

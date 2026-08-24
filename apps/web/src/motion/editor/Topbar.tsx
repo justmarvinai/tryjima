@@ -46,9 +46,11 @@ export function Topbar({
             <span className="hidden sm:inline">Templates</span>
           </button>
           <span className="truncate font-display text-[14px] font-semibold text-chalk">{def.name}</span>
-          <Badge tone="neutral" className="hidden shrink-0 md:inline-flex">
-            {categoryLabel(def.category)}
-          </Badge>
+          {/* Wrapper, not the Badge: see SiteHeader — `hidden` loses to the
+              component's own `inline-flex`. */}
+          <span className="hidden shrink-0 md:block">
+            <Badge tone="neutral">{categoryLabel(def.category)}</Badge>
+          </span>
         </>
       }
       center={

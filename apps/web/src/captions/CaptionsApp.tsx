@@ -78,15 +78,13 @@ export function CaptionsApp() {
                   <RedoIcon width={16} height={16} />
                 </IconButton>
                 <span aria-hidden className="mx-1 h-5 w-px bg-line" />
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={resetProject}
-                  title="Load a different video"
-                  className="hidden sm:inline-flex"
-                >
-                  Replace
-                </Button>
+                {/* Wrapper, not the Button: `hidden` loses to the component's
+                    own `inline-flex` (see shell/SiteHeader). */}
+                <span className="hidden sm:block">
+                  <Button variant="ghost" size="sm" onClick={resetProject} title="Load a different video">
+                    Replace
+                  </Button>
+                </span>
               </>
             )}
             <span className="hidden rounded-full bg-surface-2 px-3 py-1.5 font-mono text-[11.5px] text-ash ring-1 ring-inset ring-line md:inline-block">

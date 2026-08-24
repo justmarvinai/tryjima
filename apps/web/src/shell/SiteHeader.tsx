@@ -71,12 +71,21 @@ export function SiteHeader() {
         </nav>
 
         <div className="ml-auto flex items-center gap-2">
-          <Link to="/captions" className={cn(buttonClasses("ghost", "sm"), "hidden lg:inline-flex")}>
-            Open Captions
-          </Link>
-          <Link to="/motion" className={cn(buttonClasses("primary", "sm"), "hidden sm:inline-flex")}>
-            Open Motion
-          </Link>
+          {/* The responsive `hidden` lives on a WRAPPER, not on the link.
+              `buttonClasses` already sets `inline-flex`, and Tailwind emits
+              `.inline-flex` after `.hidden`, so a `hidden` alongside it never
+              wins — the header's CTAs stayed on at 390px and collided with the
+              hamburger. */}
+          <span className="hidden lg:block">
+            <Link to="/captions" className={buttonClasses("ghost", "sm")}>
+              Open Captions
+            </Link>
+          </span>
+          <span className="hidden sm:block">
+            <Link to="/motion" className={buttonClasses("primary", "sm")}>
+              Open Motion
+            </Link>
+          </span>
           <button
             type="button"
             className="inline-flex h-10 w-10 items-center justify-center rounded-[10px] text-chalk transition-colors hover:bg-surface-2 md:hidden"
