@@ -1,6 +1,7 @@
 import { test, expect, type Page } from "@playwright/test";
 import type { Aspect } from "@jima/engine";
 import { TEMPLATE_DURATIONS } from "../packages/templates/src/durations";
+import { templates } from "../packages/templates/src/index";
 
 // Data-driven golden-frame + determinism suite over the whole template library.
 // Determinism proof: pixel-exact re-seek (the timeline + update(t) are pure in
@@ -498,7 +499,57 @@ const TEMPLATES: T[] = [
   { id: "horizon-pan", palette: "alpine-dawn", poster: 4.0 },
   // v1.18.1 — owner-requested one-off.
   { id: "flight-mode", palette: "daylight", poster: 5.0 },
-];
+
+  { id: "arc-text", palette: "cream", poster: 3.2 },
+  { id: "knockout-text", palette: "coral", poster: 3.0 },
+  { id: "chroma-split", palette: "print", poster: 2.9 },
+  { id: "justify-lock", palette: "editorial", poster: 3.2 },
+  { id: "vertical-type", palette: "bone", poster: 3.4 },
+  { id: "band-slip", palette: "paper", poster: 2.9 },
+  { id: "backspace-fix", palette: "paper", poster: 3.2 },
+  { id: "pen-stroke", palette: "ivory", poster: 3.6 },
+  { id: "half-tone-type", palette: "punch", poster: 2.9 },
+  { id: "redact-reveal", palette: "dossier", poster: 3.6 },
+  { id: "waveform-bar", palette: "studio", poster: 3.0 },
+  { id: "recipe-step", palette: "kitchen", poster: 3.4 },
+  { id: "translation-bar", palette: "night", poster: 3.2 },
+  { id: "circle-highlight", palette: "marker", poster: 2.4 },
+  { id: "focus-vignette", palette: "cinema", poster: 2.6 },
+  { id: "peel-sticker", palette: "sunny", poster: 2.6 },
+  { id: "product-pin", palette: "clean", poster: 2.4 },
+  { id: "bracket-label", palette: "blueprint", poster: 2.6 },
+  { id: "fact-check", palette: "verified", poster: 3.2 },
+  { id: "leader-line", palette: "spec", poster: 3.4 },
+  { id: "super-chat", palette: "gold", poster: 3.4 },
+  { id: "badge-unlock", palette: "gold", poster: 2.9 },
+  { id: "shoutout", palette: "warm", poster: 3.2 },
+  { id: "views-spike", palette: "analytics", poster: 3.6 },
+  { id: "thread-numbers", palette: "ink", poster: 2.2 },
+  { id: "stitch-cut", palette: "ink", poster: 1.35 },
+  { id: "community-post", palette: "paper", poster: 3.4 },
+  { id: "music-player", palette: "night", poster: 3.6 },
+  { id: "going-live", palette: "live", poster: 4.4 },
+  { id: "repost-quote", palette: "ink", poster: 3.6 },
+  { id: "pre-order", palette: "ink", poster: 3.6 },
+  { id: "referral-offer", palette: "mint", poster: 3.4 },
+  { id: "pay-in-four", palette: "mint", poster: 3.6 },
+  { id: "trust-badges", palette: "paper", poster: 3.4 },
+  { id: "service-card", palette: "ink", poster: 3.8 },
+  { id: "booking-slots", palette: "sage", poster: 3.6 },
+  { id: "menu-board", palette: "chalk", poster: 3.6 },
+  { id: "opening-hours", palette: "sign", poster: 3.4 },
+  { id: "delivery-track", palette: "parcel", poster: 3.6 },
+  { id: "scratch-reveal", palette: "silver", poster: 2.4 },
+  { id: "kanban-board", palette: "board", poster: 4.0 },
+  { id: "vinyl-sleeve", palette: "night", poster: 3.4 },
+  { id: "business-card", palette: "ink", poster: 3.4 },
+  { id: "apparel-mockup", palette: "studio", poster: 3.6 },
+  { id: "packaging-mockup", palette: "studio", poster: 3.4 },
+  { id: "billboard-mockup", palette: "day", poster: 3.4 },
+  { id: "project-index", palette: "paper", poster: 2.6 },
+  { id: "book-mockup", palette: "press", poster: 3.4 },
+  { id: "email-mockup", palette: "inbox", poster: 3.8 },
+  { id: "type-specimen", palette: "paper", poster: 3.8 },];
 
 const ASPECTS: Aspect[] = ["1:1", "4:5", "9:16", "16:9"];
 const FRACTIONS = [0, 0.25, 0.5, 0.75, 1];
@@ -519,8 +570,18 @@ async function frameAt(page: Page, t: number): Promise<string> {
 
 test("the shipped duration table covers exactly the library", () => {
   // The gallery filters on TEMPLATE_DURATIONS without building anything, so a
-  // template missing from it would silently drop out of every length filter.
-  expect(Object.keys(TEMPLATE_DURATIONS).sort()).toEqual(TEMPLATES.map((t) => t.id).sort());
+  // template missing from it silently drops out of every length filter.
+  //
+  // This compares against the REGISTRY, not against the golden list below: it
+  // used to check the two hand-kept lists against each other, so 50 templates
+  // that were in neither passed unnoticed for a whole release.
+  expect(Object.keys(TEMPLATE_DURATIONS).sort()).toEqual(templates.map((t) => t.id).sort());
+});
+
+test("every template in the library has a golden baseline", () => {
+  // Same failure mode, one level up: a template with no entry here renders no
+  // poster baseline and is never diffed against.
+  expect(TEMPLATES.map((t) => t.id).sort()).toEqual(templates.map((t) => t.id).sort());
 });
 
 test.describe("determinism (re-seek is pixel-exact)", () => {

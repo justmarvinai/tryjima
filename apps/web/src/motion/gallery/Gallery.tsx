@@ -111,7 +111,7 @@ export function Gallery({
   return (
     <div className="flex min-h-dvh bg-void">
       {/* Persistent category rail (desktop). A real <nav> landmark. */}
-      <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col border-r border-line bg-base xl:flex">
+      <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col border-r border-line bg-shell xl:flex">
         <div className="flex h-13 items-center border-b border-line px-2.5">
           <ProductSwitcher current="motion" />
         </div>

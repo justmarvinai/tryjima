@@ -1,90 +1,128 @@
-# Jima Motion ✦
+<div align="center">
 
-**Motion graphics for social media — in seconds. 100 % free, no account, no watermark, and nothing
-you make ever leaves your browser.**
+# Jima
 
-Jima Motion is a browser tool for social media managers: open the **Studio**, pick a motion
-template, type your own text, drop in your images, tweak colors and speed if you like, and export
-an MP4, WebM or GIF — up to 1080p. Every frame is rendered client-side on your own device, which is
-exactly why it can be free: there are no render servers, no accounts, and no paid tier, because
-there is nothing to meter.
+**Caption it. Animate it. Post it.**
 
-> **Status: v1.0 shipped** ✅ — the full Studio, **249 templates**, client-side MP4/WebM/GIF export,
-> and a modern light-mode SaaS landing page are all built and passing tests. See the
-> [changelog](CHANGELOG.md) and [roadmap](ROADMAP.md).
->
-> **Scope:** a personal project — built to the quality bar of a real Jitter/Ccleaf competitor,
-> but deployed privately on Vercel for the owner, friends and family. No public launch, no SEO.
+Two free browser tools for short-form video — on-device auto-captions and 495
+motion-graphics templates. No account, no watermark, and nothing is ever
+uploaded, because there is no server to upload it to.
 
-## Why it exists
+</div>
 
-Every mainstream option taxes the user before a clean export: watermarked free tiers (VEED,
-Kapwing, Jitter…), HD paywalls, signup walls, server render queues with cooldowns and monthly
-download quotas (Ccleaf), or $10–110/month subscriptions. Client-side rendering deletes the cost
-that those paywalls exist to recover. Full evidence: [COMPETITOR_RESEARCH.md](COMPETITOR_RESEARCH.md).
+---
 
-## The v1 experience
+## The two tools
 
-Landing page → **Open the Studio** → choose one of **249 templates** (announcements, promos,
-social-engagement moments, 20 smooth kinetic-text animations, explainers & timelines, product
-showcases & ads, pricing cards, device mockups, countdowns, travel cards…) → edit
-text/images/colors in a simple form, **pick a font**, tweak speed — no timeline, no keyframes →
-export MP4/WebM/GIF in 1:1, 4:5, 9:16 or 16:9.
+### Jima Captions — `/captions`
 
-Principles: free means free · defaults are the product · form fields, not timelines · nothing
-leaves the device · fast is a feature · true light-mode, modern-SaaS design in Parkinsans + emerald ([design](DESIGN_ARCHITECTURE.md)).
+Drop in an `.mp4` and get word-perfect, word-*timed* captions.
 
-## How to use it (send this with the link)
+- Whisper runs **on your device** (WebGPU, falling back to WebAssembly) and
+  returns a timestamp per word, so the karaoke highlight lands on the syllable.
+- English and German, detected automatically and overridable.
+- Fix the words: edit a line, split a cue, merge it with the next, nudge a
+  start or end, or strip every "um" in one click — all undoable.
+- Style it: typeface, size, colour, outline, karaoke highlight (recolour or
+  box), background pill, entrance animation, and position you can just drag.
+- Export burns in at your **source resolution** with the audio track copied
+  through untouched — or write a `.srt` / `.vtt` instead.
 
-1. **Open the link** in a modern browser — Chrome, Edge, Safari or Firefox — on desktop or phone.
-   Nothing to install, no sign-up, no email. It just opens.
-2. **Click "Open the Studio"** and pick a template from the gallery. With 445 to choose from, the
-   filter chips narrow it fast — by length, by shape (vertical, square, widescreen), or by what a
-   template takes (a photo, a list, a transparent background). Star the ones you like and they
-   come back under **Favourites**, saved in your browser.
-3. **Type your words** into the form on the right, and drop in an image if the template uses one.
-   In the **Style** tab, pick a palette or set the background/text/object colors individually, and
-   choose a **font** for the headline; nudge the speed in **Motion**. The preview updates live.
-4. **Choose an aspect ratio** (1:1 for feed, 4:5 for portrait, 9:16 for Stories/Reels/TikTok, 16:9
-   for YouTube/landscape) — one project exports to any of them.
-5. **Hit Export**, pick MP4, WebM or GIF, and the file renders on your own device and downloads.
-   Post it.
+### Jima Motion — `/motion`
 
-Good to know: your text and images **never leave your browser** — there's no server and no upload.
-Work autosaves in that browser, so closing the tab won't lose it (use **Clear saved data** in the
-footer to wipe it). MP4 needs a browser with an H.264 encoder; where that's missing, the Studio
-quietly offers WebM + GIF instead, which play everywhere. There's no watermark, ever.
+Start from a designed template and end with an animation that looks made.
 
-## Running it yourself
+- **495 templates** across nine use cases, every one editable down to the last
+  colour.
+- 1:1, 4:5, 9:16 and 16:9 from the same project — the layout re-fits rather
+  than cropping.
+- Editable speed (0.25×–3×), motion energy, trim, hold and loop, all honoured by
+  the export.
+- Optional sound, **synthesised** from each template's own timeline beats — no
+  sample files, so it stays as private as everything else.
+- Export MP4, WebM (including transparent WebM for overlaying onto footage) or
+  GIF, up to 1080p.
 
-Requires Node ≥ 20.11 and pnpm 10.
+### Shared
+
+One landing page, one design system, one ⌘K palette — plus:
+
+- **A brand kit.** Three colours and two typefaces, saved once, applied in
+  Motion templates *and* caption styles. Both tools carry the same twelve
+  typefaces so a caption and a title card can genuinely match.
+- **A projects library.** Everything you have open in either tool, in one list.
+
+---
+
+## Privacy
+
+Jima has no backend. What is deployed is a folder of static files — HTML, JS,
+fonts and a WebAssembly runtime. There is no application server, no database and
+no storage bucket, so there is nothing that could receive your footage even if
+someone asked it to.
+
+You do not have to take that on trust: open your browser's network tab while you
+work, or disconnect from the internet after the page has loaded. Both tools keep
+working.
+
+The one network request beyond our own assets is the first transcription, which
+downloads an open-source Whisper model (~150 MB) from the Hugging Face CDN and
+caches it in your browser. That request is identical for every user and contains
+none of your data. Afterwards, transcription works offline.
+
+No cookies. No analytics. No error reporting.
+
+---
+
+## Browser support
+
+| Browser | Captions | Motion |
+|---|---|---|
+| Chrome / Edge 113+ | Everything | Everything |
+| Safari 16.4+ | Everything | Everything |
+| Firefox | Not yet — no video encode | Edit and export WebM / GIF |
+
+Both tools check what they need on load and say so up front rather than failing
+at the export step.
+
+---
+
+## Development
+
+Requires **Node ≥ 20.11** and **pnpm 10**.
 
 ```bash
-pnpm install      # once
-pnpm dev          # local dev server (landing + Studio)
-pnpm build        # production build → apps/web/dist  (the only deployable)
-pnpm check        # typecheck · lint · unit tests · build  (the pre-push gate)
-pnpm test:golden  # Playwright golden-frame + export-smoke + a11y tests (real browser)
+pnpm install
+pnpm dev            # Vite dev server
+pnpm check          # typecheck + lint + test + build — the pre-push gate
+pnpm test:golden    # Playwright: golden frames, exports, a11y, smoke flows
 ```
 
-Deploy is a static build on **Vercel** (Root Directory `apps/web`); every push to the default
-branch ships. See [`TECHNICAL_ARCHITECTURE.md`](TECHNICAL_ARCHITECTURE.md) for the full stack.
+### Layout
 
-## Documentation
+```
+apps/web/           the only deployable — one SPA
+packages/engine     @jima/engine    — Motion render + export engine (Pixi v8)
+packages/templates  @jima/templates — the 495 templates
+packages/captions   @jima/captions  — transcription, cue model, caption renderer
+tests/              Playwright suites + golden-frame baselines
+```
 
-| Doc | What's in it |
-|---|---|
-| [PRODUCT_BRIEF.md](PRODUCT_BRIEF.md) | Vision, audience, positioning, scope & non-goals |
-| [COMPETITOR_RESEARCH.md](COMPETITOR_RESEARCH.md) | Deep research: Jitter, Ccleaf, the wider market, SEO gaps |
-| [TECHNICAL_ARCHITECTURE.md](TECHNICAL_ARCHITECTURE.md) | Stack & ADRs: Vite + React SPA, PixiJS v8 engine, WebCodecs + Mediabunny export, budgets |
-| [DESIGN_ARCHITECTURE.md](DESIGN_ARCHITECTURE.md) | Brand system, tokens, landing & Studio UX specs, copy deck |
-| [TEMPLATE_LIBRARY.md](TEMPLATE_LIBRARY.md) | The 12 launch templates, spec'd storyboard-level |
-| [ROADMAP.md](ROADMAP.md) | Phases 0–6 with acceptance criteria, risks, status |
-| [CLAUDE.md](CLAUDE.md) | Working agreement & guardrails for (AI-assisted) development |
-| [CHANGELOG.md](CHANGELOG.md) | Keep-a-Changelog record |
+Start with [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md) and
+[`docs/DESIGN_SYSTEM.md`](./docs/DESIGN_SYSTEM.md); `CLAUDE.md` holds the
+working agreement and the pitfalls worth not rediscovering.
 
-## License
+### Deployment
 
-Code license: TBD by the project owner (private personal project).
-Bundled fonts will be OFL-1.1; dependency license policy is defined in
-[TECHNICAL_ARCHITECTURE.md](TECHNICAL_ARCHITECTURE.md) § 3.1.
+Static SPA on Vercel — `vercel.json` builds with `pnpm build` and serves
+`apps/web/dist`. Cross-origin isolation headers
+(`COOP: same-origin`, `COEP: credentialless`) are set on every route so
+Captions' WASM backend can use `SharedArrayBuffer`; keep `vercel.json` and
+`apps/web/vite.config.ts` in sync.
+
+---
+
+## Licence
+
+Jima is a personal project. The bundled typefaces are OFL-1.1. Everything you
+export is yours, for any use, with no attribution required.

@@ -57,7 +57,7 @@ export function Card({
 
 /** A chrome panel: rail, inspector, sidebar. Flat, hairline-separated. */
 export function Panel({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn("bg-base", className)} {...props} />;
+  return <div className={cn("bg-shell", className)} {...props} />;
 }
 
 /** Oversized landing tile with a hover lift. */
@@ -192,7 +192,7 @@ export function MockupFrame({
   barClassName?: string;
 }) {
   return (
-    <div className={cn("overflow-hidden rounded-bento border border-line bg-base shadow-pop", className)}>
+    <div className={cn("overflow-hidden rounded-bento border border-line bg-shell shadow-pop", className)}>
       <div className={cn("flex items-center gap-1.5 border-b border-line bg-surface px-4 py-3", barClassName)} aria-hidden>
         <span className="h-2.5 w-2.5 rounded-full bg-line-2" />
         <span className="h-2.5 w-2.5 rounded-full bg-line-2" />

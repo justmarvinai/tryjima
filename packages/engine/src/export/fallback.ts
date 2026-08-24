@@ -1,4 +1,4 @@
-// Fallback ladder scaffolding (TECHNICAL_ARCHITECTURE.md §4, §8.2/§8.5).
+// Fallback ladder scaffolding (docs/MOTION_ARCHITECTURE.md §4, §8.2/§8.5).
 //
 // The primary path is WebCodecs → Mediabunny (MP4/WebM) + gifenc (GIF). Capability
 // detection (./capabilities) ensures we only ever OFFER a format that will work,

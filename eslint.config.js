@@ -5,14 +5,14 @@ import reactHooks from "eslint-plugin-react-hooks";
 import globals from "globals";
 
 /**
- * Determinism guard (CLAUDE.md hard rule 6, TECHNICAL_ARCHITECTURE.md §6.1):
+ * Determinism guard (CLAUDE.md hard rule 6, docs/MOTION_ARCHITECTURE.md §6.1):
  * engine + templates must be pure f(t, values, aspect, seed). No wall-clock,
  * no unseeded randomness. Also enforces the GSAP ban (ADR-001) everywhere.
  */
 const determinismRules = {
   "no-restricted-properties": [
     "error",
-    { object: "Date", property: "now", message: "Determinism: use the seeded/injected clock, not Date.now (TECHNICAL_ARCHITECTURE.md §6.1)." },
+    { object: "Date", property: "now", message: "Determinism: use the seeded/injected clock, not Date.now (docs/MOTION_ARCHITECTURE.md §6.1)." },
     { object: "Math", property: "random", message: "Determinism: use the seeded RNG from template context, not Math.random." },
     { object: "performance", property: "now", message: "Determinism: time comes from the frame index / injected clock, not performance.now." },
   ],

@@ -181,7 +181,7 @@ function ProjectCard({ entry, onDeleted }: { entry: ProjectEntry; onDeleted: () 
   return (
     <li className="group relative flex flex-col overflow-hidden rounded-bento border border-line bg-surface shadow-card transition-all duration-200 hover:-translate-y-1 hover:border-lime/35 hover:shadow-pop">
       <Link to={entry.href} className="block" aria-label={`Open ${entry.title}`}>
-        <div className="relative aspect-[16/10] overflow-hidden border-b border-line bg-base">
+        <div className="relative aspect-[16/10] overflow-hidden border-b border-line bg-shell">
           {def && entry.motion ? (
             <PosterThumb
               def={def}

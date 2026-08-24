@@ -108,13 +108,16 @@ export function CaptionsApp() {
 
       {ready ? (
         <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[minmax(280px,320px)_1fr_minmax(280px,308px)]">
-          <aside className="hidden min-h-0 border-r border-line bg-base lg:block">
+          {/* The Dropzone carries the h1 while the editor is empty; once a
+              video is loaded it is gone, and the document needs one anyway. */}
+          <h1 className="sr-only">Jima Captions — editing {file?.name ?? 'your video'}</h1>
+          <aside className="hidden min-h-0 border-r border-line bg-shell lg:block">
             <TranscriptPanel />
           </aside>
           <main className="stage-dots flex min-h-0 items-center justify-center overflow-hidden p-4 sm:p-6">
             <VideoStage />
           </main>
-          <aside className="hidden min-h-0 border-l border-line bg-base lg:block">
+          <aside className="hidden min-h-0 border-l border-line bg-shell lg:block">
             <StylePanel />
           </aside>
         </div>

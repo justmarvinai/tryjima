@@ -42,7 +42,7 @@ const PRIVACY_POINTS = [
 
 export function PrivacyBand() {
   return (
-    <section className="border-t border-line bg-base py-20 sm:py-28" aria-labelledby="privacy-title">
+    <section className="border-t border-line bg-shell py-20 sm:py-28" aria-labelledby="privacy-title">
       <Container>
         <div className="grid gap-12 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:gap-16">
           <div>
@@ -62,8 +62,11 @@ export function PrivacyBand() {
 
           <ul className="flex flex-col gap-3">
             {PRIVACY_POINTS.map(({ icon: Icon, title, body }, i) => (
-              <Reveal key={title} delay={i * 80}>
-                <li className="rounded-card border border-line bg-surface p-6">
+              // The <li> has to be the direct child of the <ul>: wrapping it in
+              // Reveal's <div> breaks the list for assistive tech (axe flags it
+              // as both "list has non-li children" and "li with no list parent").
+              <li key={title} className="rounded-card border border-line bg-surface p-6">
+                <Reveal delay={i * 80}>
                   <div className="flex items-center gap-3">
                     <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-lime-tint text-lime ring-1 ring-inset ring-lime/25">
                       <Icon width={17} height={17} />
@@ -71,8 +74,8 @@ export function PrivacyBand() {
                     <h3 className="font-display text-base font-semibold text-chalk">{title}</h3>
                   </div>
                   <p className="mt-3 text-[14.5px] leading-relaxed text-ash">{body}</p>
-                </li>
-              </Reveal>
+                </Reveal>
+              </li>
             ))}
           </ul>
         </div>
@@ -165,11 +168,11 @@ const STATS: { value: string; label: string; note: string }[] = [
 
 export function Stats() {
   return (
-    <section className="border-t border-line bg-base py-16 sm:py-20" aria-label="Jima by the numbers">
+    <section className="border-t border-line bg-shell py-16 sm:py-20" aria-label="Jima by the numbers">
       <Container>
         <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-bento border border-line bg-line lg:grid-cols-4">
           {STATS.map((s) => (
-            <div key={s.label} className="bg-base px-6 py-8 text-center">
+            <div key={s.label} className="bg-shell px-6 py-8 text-center">
               <dt className="sr-only">{s.label}</dt>
               <dd>
                 <span className="headline-xl block text-4xl text-lime sm:text-5xl">{s.value}</span>

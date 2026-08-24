@@ -16,7 +16,7 @@ const GIF_FORMAT = "rgb565" as const;
 
 /**
  * Build one global palette sampled across the clip, then encode every frame
- * against it — stable colors, no per-frame flicker (TECHNICAL_ARCHITECTURE.md
+ * against it — stable colors, no per-frame flicker (docs/MOTION_ARCHITECTURE.md
  * §8.3). Pure: identical frames in → identical bytes out. gifenc's PnnQuant
  * suits flat template art (no dithering, by design).
  */

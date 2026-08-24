@@ -76,7 +76,7 @@ export function ProductSplit() {
             return (
               <Reveal key={card.id} delay={i * 90}>
                 <article className="group flex h-full flex-col overflow-hidden rounded-bento border border-line bg-surface shadow-card transition-all duration-300 hover:-translate-y-1 hover:border-lime/35 hover:shadow-pop">
-                  <div className="relative aspect-[16/10] overflow-hidden border-b border-line bg-base">
+                  <div className="relative aspect-[16/10] overflow-hidden border-b border-line bg-shell">
                     {card.art}
                   </div>
 

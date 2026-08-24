@@ -81,7 +81,7 @@ test.describe("GIF export", () => {
     const out = await runExport(page, { format: "gif", fps: 10, resolution: 0.25, gifMaxColors: 128 });
     expect(out.format).toBe("gif");
     expect(out.byteLength).toBeGreaterThan(0);
-    // Under the 8 MB GIF budget (TEMPLATE_LIBRARY.md QA gate).
+    // Under the 8 MB GIF budget (docs/TEMPLATE_LIBRARY.md QA gate).
     expect(out.byteLength).toBeLessThan(8 * 1024 * 1024);
 
     const header = await page.evaluate((b64) => atob(b64).slice(0, 6), out.base64);

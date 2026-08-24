@@ -1,11 +1,92 @@
 # Changelog
 
-All notable changes to **Jima Motion** are documented in this file.
+All notable changes to **Jima** are documented in this file.
 
-The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Once code exists the
-project uses [Semantic Versioning](https://semver.org/); during the docs-only planning stage,
-entries are dated documentation drops. Every phase completion in `ROADMAP.md` must add an entry here
-— this file is part of the definition of done (see `CLAUDE.md`).
+Jima Captions and Jima Motion shipped as separate products until 2.0.0 merged
+them. Everything below 2.0.0 is Jima Motion's history; Jima Captions' own
+releases (1.0–1.2) are recorded in `apps/web/src/content/whatsNew.ts`, which is
+what the site's /whats-new page renders.
+
+The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and
+the project uses [Semantic Versioning](https://semver.org/). Every release must
+add an entry here — this file is part of the definition of done (see
+`CLAUDE.md`).
+
+## [2.0.0] — 2026-08-24 · Two tools, one Jima
+
+`EinPallux/Jima` (captions) and `EinPallux/Jima-Motion` merged into one product,
+one domain and one design system. Nothing was dropped from either.
+
+### Added
+
+- **One landing page.** A single Jima landing at `/` explains the pair and hands
+  you the tool you came for. Neither product has a marketing page of its own any
+  more — two would rebuild exactly the seam this merge removes.
+- **A shared brand kit** (`/brand`). Three colours and two typefaces, saved once
+  and applied in Motion templates *and* caption styles. Both tools now offer the
+  same twelve typefaces so a caption and a title card can genuinely match; the
+  editor shows both engines rendering your kit live, side by side.
+- **A unified projects library** (`/projects`). Captions and Motion work in one
+  list, with resume and delete. Motion projects are now keyed per template
+  rather than a single autosave slot, so editing a second template no longer
+  throws the first away. Captions saves your corrected transcript and style and
+  asks for the video again on resume — matching it by name and size, because the
+  video itself is never written to storage.
+- **A product switcher** in both editors, in the same place in the same 52px
+  chrome bar, plus a **⌘K command palette** app-wide.
+- **`/help`** — getting started for both tools, browser support, and the
+  failures people actually hit.
+- **`/whats-new`** — both products' release histories on one filterable
+  timeline.
+- Legacy redirects: `/app` → `/captions`, `/studio` → `/motion`,
+  `/news` → `/whats-new`.
+
+### Changed
+
+- **A new design system, "Nocturne"** (`docs/DESIGN_SYSTEM.md`): near-black
+  chrome, a light canvas for the user's work, and one electric-lime accent.
+  It replaces Motion's white/emerald/Parkinsans and Captions'
+  white/indigo-gradient/Space-Grotesk entirely. Type is Archivo (display),
+  Geist (UI) and Geist Mono (numerals).
+- One component kit (`apps/web/src/ui/`) and one chrome shell
+  (`apps/web/src/shell/`) serve the landing and both tools. The two tools'
+  duplicate button, select, slider, toggle and colour-field implementations are
+  gone.
+- Jima Captions moved onto the workspace toolchain: React 19, React Router 7,
+  Tailwind 4, Vite 8, and the stricter TS config
+  (`noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`). Its engine is now
+  the framework-free `@jima/captions` package.
+- Documentation reorganised into `docs/`; each predecessor's design doc is kept
+  as `*_DESIGN_LEGACY.md` for history.
+
+### Fixed
+
+- **50 templates were missing from the duration table**, so the whole v1.19 pack
+  silently dropped out of the gallery's "short" and "long" filters. Their real
+  lengths were measured from the engine through the render harness and added.
+  The library is **495** templates, not 445 — every count in the UI now reads
+  from data rather than a hard-coded number.
+- **The coverage tests were checking the wrong thing.** `TEMPLATE_DURATIONS` and
+  the golden baseline list were compared against *each other*, so a template
+  missing from both passed. Both are now asserted against the registry, and the
+  50 missing golden baselines were generated.
+- **Every `text-*` utility on a `<button>` was being silently overridden.** The
+  element defaults were unlayered CSS, which beats Tailwind's `utilities` layer
+  regardless of specificity — so a lime button's black label rendered chalk, at
+  1.06:1. Element defaults now live in `@layer base`.
+- **A colour token was shadowing a font-size utility.** `--color-base` made
+  Tailwind resolve `text-base` to `color: #0B0D10`: near-black text on a
+  near-black panel. Renamed to `--color-shell`.
+- Text tokens are now checked against the lightest surface they can land on
+  rather than the page ground; `--color-dim` was 4.47:1 on a raised panel.
+- The landing no longer statically imports the 2.7 MB template registry — the
+  count comes from a small data module and the poster marquee is a lazy chunk.
+- Three pre-existing lint errors in the v1.19 template pack, and a `<ul>` on the
+  landing whose children were `<div>`s.
+
+### Removed
+
+- Jima Motion's light-mode-only rule, and both predecessor landing pages.
 
 ## [Unreleased]
 

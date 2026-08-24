@@ -1,14 +1,34 @@
 import { test, expect } from "@playwright/test";
 
+// The unified landing: one page, two tools. These cover the routes a visitor
+// actually takes out of it, plus the two pieces of the page that are live
+// rather than static (the hero carousel and the FAQ).
+
 test.use({ viewport: { width: 1300, height: 900 } });
 
-test("landing renders and the primary CTA opens the Studio", async ({ page }) => {
+test("landing renders and both product CTAs open their tool", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: /Motion graphics for social media/ })).toBeVisible();
-  // Nav CTA → Studio
-  await page.getByRole("link", { name: "Open the Studio" }).first().click();
-  await expect(page).toHaveURL(/\/studio$/);
+  await expect(page.getByRole("heading", { name: /Caption it/ })).toBeVisible();
+
+  await page.getByRole("link", { name: "Open Motion" }).first().click();
+  await expect(page).toHaveURL(/\/motion$/);
   await expect(page.getByRole("heading", { name: "Pick a template" })).toBeVisible({ timeout: 20000 });
+
+  await page.goto("/");
+  await page.getByRole("link", { name: "Caption a video" }).first().click();
+  await expect(page).toHaveURL(/\/captions$/);
+  // Either the dropzone or the capability floor is a pass here: this asserts
+  // the route mounts, not that the browser can encode video.
+  await expect(
+    page.getByRole("heading", { name: /Drop your video|can't run Captions/ }),
+  ).toBeVisible({ timeout: 20000 });
+});
+
+test("the tools menu lists both products", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Tools" }).click();
+  await expect(page.getByRole("link", { name: /Jima Captions/ }).first()).toBeVisible();
+  await expect(page.getByRole("link", { name: /Jima Motion/ }).first()).toBeVisible();
 });
 
 // The hero cards are the only links labelled "Edit <template>", so their shared
@@ -39,19 +59,49 @@ test.describe("hero carousel", () => {
   });
 });
 
-test("gallery cards deep-link into a template", async ({ page }) => {
+test("marquee cards deep-link into a template", async ({ page }) => {
   await page.goto("/");
-  await page.getByRole("heading", { name: "Templates for every post" }).waitFor({ timeout: 20000 });
-  // Scope to the static gallery grid (the marquee rail is animated).
-  await page.locator("#templates").getByRole("link", { name: /Glow Promo/ }).first().click();
-  await expect(page).toHaveURL(/\/studio\?t=glow-promo/);
+  await page.getByRole("heading", { name: /Caption it/ }).waitFor({ timeout: 20000 });
+  // The marquee is a lazy chunk well below the fold — scroll it in first.
+  await page.locator("#templates").scrollIntoViewIfNeeded();
+  await page.getByRole("heading", { name: /Something for whatever you're posting/ }).waitFor({ timeout: 20000 });
+
+  // Take whichever card the marquee sampled rather than naming one: the sample
+  // is "every sixth template", so hard-coding a name breaks the moment the
+  // library grows. Stop the rows and rewind them to their start — merely
+  // pausing leaves the first card wherever the animation had carried it, which
+  // is usually off the left edge and therefore unclickable.
+  const rail = page.locator("#templates");
+  await rail.locator("[style*='jima-marquee']").evaluateAll((els) => {
+    for (const el of els) {
+      const row = el as HTMLElement;
+      row.style.animation = "none";
+      row.style.transform = "none";
+    }
+  });
+  const card = rail.getByRole("link").first();
+  await card.click();
+  await expect(page).toHaveURL(/\/motion\?t=[a-z0-9-]+/);
   await expect(page.locator("canvas").first()).toBeVisible({ timeout: 20000 });
 });
 
 test("FAQ accordion expands", async ({ page }) => {
   await page.goto("/");
-  const q = page.getByRole("button", { name: /Do I need an account\?/ });
+  const q = page.getByRole("button", { name: /Do my videos get uploaded anywhere\?/ });
   await q.scrollIntoViewIfNeeded();
   await q.click();
-  await expect(page.getByText(/There's no login to create/)).toBeVisible();
+  await expect(page.getByText(/there is no backend that could receive a video/)).toBeVisible();
+});
+
+test("the command palette navigates between tools", async ({ page }) => {
+  await page.goto("/");
+  // Wait for the route chunk to mount: the palette lives in the layout route,
+  // and a keypress sent before it hydrates goes nowhere.
+  await page.getByRole("heading", { name: /Caption it/ }).waitFor({ timeout: 20000 });
+  await page.keyboard.press("ControlOrMeta+k");
+  const palette = page.getByRole("dialog", { name: "Command palette" });
+  await expect(palette).toBeVisible();
+  await palette.getByRole("textbox").fill("motion");
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL(/\/motion$/);
 });

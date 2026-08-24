@@ -43,7 +43,7 @@ export interface SelectOption {
 }
 
 // One editable control. Constraints are optional and type-specific; the Studio
-// renders the right widget per `type` (DESIGN_ARCHITECTURE.md §7.2).
+// renders the right widget per `type` (docs/MOTION_DESIGN_LEGACY.md §7.2).
 export interface TemplateField {
   key: string;
   type: FieldType;

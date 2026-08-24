@@ -56,14 +56,28 @@
         "dist/assets/index-*.js",
         "dist/assets/Landing-*.js"
       ],
-      "limit": "200 kB"
+      "limit": "140 kB"
     },
     {
-      "name": "hero strip chunk (lazy live-template preview row, loads after first paint)",
+      "name": "template strip (lazy live-preview row under the hero)",
       "path": [
-        "dist/assets/HeroStrip-*.js"
+        "dist/assets/TemplateStrip-*.js"
       ],
-      "limit": "20 kB"
+      "limit": "12 kB"
+    },
+    {
+      "name": "Captions route (excl. transformers.js + mediabunny, both lazy)",
+      "path": [
+        "dist/assets/Captions-*.js"
+      ],
+      "limit": "40 kB"
+    },
+    {
+      "name": "Motion route (excl. Pixi + the template registry, both lazy)",
+      "path": [
+        "dist/assets/Motion-*.js"
+      ],
+      "limit": "45 kB"
     }
   ]
 }

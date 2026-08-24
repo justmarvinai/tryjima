@@ -30,7 +30,7 @@ export function ToolBar({
   return (
     <header
       className={cn(
-        "flex h-13 shrink-0 items-center gap-2 border-b border-line bg-base px-2.5 sm:px-3",
+        "flex h-13 shrink-0 items-center gap-2 border-b border-line bg-shell px-2.5 sm:px-3",
         className,
       )}
     >

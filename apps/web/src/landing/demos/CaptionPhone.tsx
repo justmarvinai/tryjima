@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { loadFont } from "@jima/captions/fonts";
 import { cn, useReducedMotion } from "@/ui";
 
 const WORDS = ["CAPTIONS", "THAT", "ACTUALLY", "KEEP", "UP"];
@@ -19,6 +20,20 @@ export function CaptionPhone({ className }: { className?: string }) {
   const [active, setActive] = useState(0);
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
   const frameRef = useRef<HTMLDivElement>(null);
+
+  // Anton is the default caption face and is loaded on demand through the
+  // FontFace loader, not declared in CSS — without this the demo renders in the
+  // UI font and stops looking like a caption.
+  const [fontReady, setFontReady] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    void loadFont("anton-400")
+      .then(() => alive && setFontReady(true))
+      .catch(() => alive && setFontReady(true));
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   useEffect(() => {
     if (reduced) {
@@ -66,7 +81,10 @@ export function CaptionPhone({ className }: { className?: string }) {
             !reduced && "float-slow",
           )}
         >
-          <div className="relative h-full w-full overflow-hidden rounded-[23px]">
+          {/* `container-type: inline-size` is load-bearing: the caption sizes
+              itself in `cqw`, and with no container to measure the whole clamp
+              is invalid and the text falls back to the inherited size. */}
+          <div className="relative h-full w-full overflow-hidden rounded-[23px] [container-type:inline-size]">
             {/* Stand-in "footage". */}
             <div
               className="absolute inset-0"
@@ -93,13 +111,13 @@ export function CaptionPhone({ className }: { className?: string }) {
             </div>
 
             {/* The caption line. */}
-            <div className="absolute inset-x-0 bottom-[18%] flex flex-wrap items-center justify-center gap-x-2 gap-y-1 px-5 text-center">
+            <div className="absolute inset-x-0 bottom-[20%] flex flex-wrap items-center justify-center gap-x-2 gap-y-1 px-5 text-center">
               {WORDS.map((word, i) => (
                 <span
                   key={word}
-                  className="inline-block text-[clamp(19px,4.4cqw,30px)] uppercase leading-none tracking-tight transition-all duration-200"
+                  className="inline-block text-[clamp(22px,9.5cqw,34px)] uppercase leading-[1.05] tracking-tight transition-all duration-200"
                   style={{
-                    fontFamily: "Anton, var(--font-display)",
+                    fontFamily: fontReady ? "Anton, var(--font-display)" : "var(--font-display)",
                     color: i === active ? "#C8FF3D" : "#ffffff",
                     transform: i === active && !reduced ? "translateY(-2px) scale(1.07)" : "none",
                     textShadow: "0 2px 12px rgba(0,0,0,0.65)",
@@ -148,7 +166,8 @@ export function CaptionPhone({ className }: { className?: string }) {
 
       <div
         className={cn(
-          "absolute -right-4 bottom-[16%] hidden items-center gap-2 rounded-full border border-line bg-surface/90 py-2 pl-2.5 pr-4 shadow-pop backdrop-blur-md sm:flex",
+          // Below the caption line, not across it.
+          "absolute -right-6 -bottom-4 hidden items-center gap-2 rounded-full border border-line bg-surface/90 py-2 pl-2.5 pr-4 shadow-pop backdrop-blur-md sm:flex",
           !reduced && "float-slow",
         )}
         style={{ animationDelay: "1.4s" }}

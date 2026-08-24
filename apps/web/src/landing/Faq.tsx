@@ -44,7 +44,7 @@ const FAQ: { q: string; a: string }[] = [
 export function Faq() {
   const [open, setOpen] = useState<number | null>(0);
   return (
-    <section id="faq" className="border-t border-line bg-base py-20 sm:py-28">
+    <section id="faq" className="border-t border-line bg-shell py-20 sm:py-28">
       <Container>
         <div className="mx-auto max-w-3xl">
           <SectionHeading align="center" eyebrow="FAQ" size="lg" title="Questions, answered." />

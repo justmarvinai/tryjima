@@ -296,5 +296,32 @@ rendering, AI credits, dark mode.
 | Procedural music bed + cue-driven auto-ducking | ✅ 2026-07-27 |
 | Emoji (platform fonts + shipped Noto Emoji fallback) + emoji picker | ✅ 2026-07-27 |
 | Library: favourites (localStorage) + 9 definition-derived filter facets + shipped duration table | ✅ 2026-07-27 |
+| +50 templates (overlays, social, product/ads, showcase, explainers) | ✅ 2026-08 — **v1.19**, library 445 → 495 |
+| **Merge with Jima Captions — one product, one design system** | ✅ 2026-08-24 — **v2.0.0** |
+
+### v2.0.0 — the merge
+
+| Item | Status |
+|---|---|
+| pnpm workspace absorbs the Captions engine as `@jima/captions` | ✅ |
+| Captions on React 19 / Router 7 / Tailwind 4 / Vite 8, strict TS | ✅ |
+| "Nocturne" dark design system replaces both predecessors | ✅ |
+| One UI kit + one `ToolBar` shared by both editors | ✅ |
+| One landing page; `/app`, `/studio`, `/news` redirect | ✅ |
+| Shared brand kit applied in Motion templates *and* caption styles | ✅ |
+| Unified projects library; Motion projects keyed per template | ✅ |
+| ⌘K command palette, `/help`, `/whats-new` | ✅ |
+| Duration table + golden baselines completed for the 50 missing templates | ✅ |
+| Coverage tests re-pointed at the registry rather than at each other | ✅ |
+| a11y sweep green on the landing, both tools and every content page | ✅ |
+| `pnpm check` green; golden, export, audio and smoke suites pass | ✅ |
+
+### Not done here (owner's call)
+
+| Item | Why |
+|---|---|
+| Safari / Firefox / mobile spot-checks | This environment is Chromium-only (SwiftShader). Run them on the live URL. |
+| Domain, DNS, Vercel project wiring | Owner-side. `vercel.json` is ready. |
+| A real end-to-end transcription run | Would pull a ~150 MB model into CI on every run; the pipeline is covered by unit tests and the renderer by a browser smoke test. |
 
 *(Update this table + CHANGELOG.md at every phase transition.)*

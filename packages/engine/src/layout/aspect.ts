@@ -1,5 +1,5 @@
 // Aspect ratios and their logical render sizes. Templates author in these exact
-// pixel units; preview/export scale from here (TECHNICAL_ARCHITECTURE.md §6.3).
+// pixel units; preview/export scale from here (docs/MOTION_ARCHITECTURE.md §6.3).
 
 export type Aspect = "1:1" | "4:5" | "9:16" | "16:9";
 
@@ -31,7 +31,7 @@ export interface Insets {
 /**
  * Platform-UI safe zone (px) — keep key content inside these insets.
  * 9:16 reserves the bottom 400px / top 220px for Reels/TikTok/Stories chrome
- * (COMPETITOR_RESEARCH.md §4.4); other aspects use a modest uniform margin.
+ * (docs/COMPETITOR_RESEARCH.md §4.4); other aspects use a modest uniform margin.
  */
 export function safeZone(aspect: Aspect): Insets {
   const { width, height } = SIZES[aspect];

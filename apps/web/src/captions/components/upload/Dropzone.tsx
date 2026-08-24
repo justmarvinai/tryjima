@@ -73,17 +73,20 @@ export function Dropzone() {
         {busy ? (
           <>
             <Spinner />
-            <p className="mt-5 font-display text-xl font-semibold text-chalk">
-              Analyzing your video
-            </p>
+            <h1 className="mt-5 font-display text-xl font-semibold text-chalk">
+              Analysing your video
+            </h1>
             <p className="mt-1.5 text-sm text-dim">Reading it locally — it never leaves your device.</p>
           </>
         ) : (
           <>
             <UploadGlyph dragging={dragging} />
-            <p className="mt-5 font-display text-xl font-semibold text-chalk">
+            {/* The page's h1 while the editor is empty: this IS what the
+                route is for, and a tool with no heading at all is a hole in
+                the document outline. */}
+            <h1 className="mt-5 font-display text-xl font-semibold text-chalk">
               {dragging ? 'Drop to start' : 'Drop your video here'}
-            </p>
+            </h1>
             <p className="mt-1.5 text-sm text-dim">
               or <span className="font-semibold text-lime">browse</span> — .mp4, up to {MAX_FILE_MB} MB and{' '}
               {MAX_DURATION_SECONDS}s
@@ -94,6 +97,21 @@ export function Dropzone() {
           </>
         )}
       </label>
+
+      {/* Three steps, so the empty state answers "and then what?" without
+          making anyone read a help page first. */}
+      {status !== 'error' && (
+        <ol className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-dim">
+          {['Drop an .mp4', 'It listens on your device', 'Style it and export'].map((step, i) => (
+            <li key={step} className="flex items-center gap-2">
+              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-surface-2 font-mono text-[10px] font-semibold text-lime ring-1 ring-inset ring-line">
+                {i + 1}
+              </span>
+              {step}
+            </li>
+          ))}
+        </ol>
+      )}
 
       {status === 'error' && error && (
         <div

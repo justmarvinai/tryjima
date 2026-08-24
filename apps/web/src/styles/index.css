@@ -29,7 +29,12 @@
    * beyond a couple of points of blue so lime reads warm against it.
    * ---------------------------------------------------------------- */
   --color-void: #08090b; /* page background, deepest ground */
-  --color-base: #0b0d10; /* app chrome background */
+  /* NOTE the name. This was `--color-base`, which silently hijacked
+     Tailwind's built-in `text-base` font-size utility: any `text-base`
+     in the app resolved to `color: #0b0d10` — near-black text on a
+     near-black panel. Never name a colour token after a utility that
+     already exists in another namespace. */
+  --color-shell: #0b0d10; /* app chrome background */
   --color-surface: #111419; /* panels, cards, rails */
   --color-surface-2: #171b21; /* raised: inputs, hover fills */
   --color-surface-3: #1e232b; /* pressed / selected fills */
@@ -37,14 +42,17 @@
   --color-line-2: #343b45; /* stronger dividers on raised surfaces */
 
   /* ---------------------------------------------------------------- *
-   * Text on dark. Every value below is checked against --color-void:
-   * chalk 17.8:1 · silver 11.4:1 · ash 7.2:1 · dim 4.8:1.
+   * Text on dark. Checked against the LIGHTEST surface they land on
+   * (--color-surface-3, #1e232b) rather than against the page ground —
+   * a value that clears 4.5:1 on near-black can still fail on a raised
+   * panel, which is exactly the bug the a11y suite caught here:
+   * chalk 13.9:1 · silver 8.9:1 · ash 6.0:1 · dim 4.8:1.
    * `dim` is the floor — never put body copy below it.
    * ---------------------------------------------------------------- */
   --color-chalk: #f2f3f5; /* primary text, headings */
   --color-silver: #c2c6ce; /* strong body */
   --color-ash: #9aa0aa; /* secondary body */
-  --color-dim: #7c828d; /* tertiary, placeholders, captions */
+  --color-dim: #888e9a; /* tertiary, placeholders, captions */
 
   /* ---------------------------------------------------------------- *
    * Electric lime — THE accent. Owns both products.
@@ -60,10 +68,16 @@
 
   /* ---------------------------------------------------------------- *
    * Light canvas — the user's work. These stay light in a dark app.
+   *
+   * Deliberately NOT called `paper`: Jima Motion's own token vocabulary
+   * already uses `paper` for a card surface, in ~30 places. Pointing
+   * that name at white turned every Studio card white with chalk text
+   * on it (1.1:1) — so `paper` stays a dark card, aliased below, and
+   * the genuinely-light surfaces get a name of their own.
    * ---------------------------------------------------------------- */
-  --color-paper: #ffffff;
-  --color-paper-2: #f4f4f5;
-  --color-paper-3: #e6e7ea;
+  --color-artboard: #ffffff;
+  --color-artboard-2: #f4f4f5;
+  --color-artboard-3: #e6e7ea;
 
   /* ---------------------------------------------------------------- *
    * Supporting hues. Decorative only — tags, chips, illustration,
@@ -146,14 +160,15 @@
    * classes (bg-paper, text-slate, border-mist, …) restyle here rather
    * than in 100+ files. New code should use the names above.
    * ================================================================ */
+  --color-paper: #111419; /* was a white card           → surface */
   --color-porcelain: #08090b; /* was app background white   → void    */
-  --color-canvas: #0b0d10; /* was off-white band         → base    */
+  --color-canvas: #0b0d10; /* was off-white band         → shell   */
   --color-subtle: #171b21; /* was #f4f4f5 muted fill     → surf-2  */
   --color-mist: #262b33; /* was hairline grey          → line    */
   --color-ink: #f2f3f5; /* was near-black text        → chalk   */
   --color-graphite: #c2c6ce; /* was strong body            → silver  */
   --color-slate: #9aa0aa; /* was secondary body         → ash     */
-  --color-muted: #7c828d; /* was tertiary               → dim     */
+  --color-muted: #888e9a; /* was tertiary               → dim     */
   --color-emerald: #c8ff3d; /* the old brand accent       → lime    */
   --color-emerald-bright: #deff8c;
   --color-emerald-tint: #1a2410;
@@ -176,165 +191,176 @@
  * Element defaults
  * ==================================================================== */
 
-:root {
-  color-scheme: dark;
-  /* Sticky-header offset for in-page anchors. */
-  scroll-padding-top: 5.5rem;
-}
+/*
+ * These are LAYERED into `base` on purpose.
+ *
+ * Tailwind 4 declares `@layer theme, base, components, utilities`, and an
+ * unlayered rule beats every layered one regardless of specificity. Written at
+ * the top level, `button { color: inherit }` below therefore silently defeated
+ * every `text-*` utility on every button in the app — a lime button's black
+ * label came out chalk, at 1.06:1. Keep element defaults in `base`.
+ */
+@layer base {
+  :root {
+    color-scheme: dark;
+    /* Sticky-header offset for in-page anchors. */
+    scroll-padding-top: 5.5rem;
+  }
 
-html {
-  -webkit-text-size-adjust: 100%;
-  text-rendering: optimizeLegibility;
-  scroll-behavior: smooth;
-  background: var(--color-void);
-}
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+    scroll-behavior: smooth;
+    background: var(--color-void);
+  }
 
-body {
-  margin: 0;
-  background: var(--color-void);
-  color: var(--color-chalk);
-  font-family: var(--font-sans);
-  font-size: 1rem;
-  line-height: 1.6;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
+  body {
+    margin: 0;
+    background: var(--color-void);
+    color: var(--color-chalk);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
 
-/* Display type. Archivo is set slightly expanded (wdth 108) and tight —
-   the wide-and-heavy combination is the brand's signature. */
-h1,
-h2,
-h3,
-h4 {
-  font-family: var(--font-display);
-  font-stretch: 108%;
-  font-weight: 700;
-  letter-spacing: -0.025em;
-  line-height: 1.06;
-  text-wrap: balance;
-}
+  /* Display type. Archivo is set slightly expanded (wdth 108) and tight —
+     the wide-and-heavy combination is the brand's signature. */
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    font-stretch: 108%;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    line-height: 1.06;
+    text-wrap: balance;
+  }
 
-::selection {
-  background: var(--color-lime);
-  color: var(--color-void);
-}
+  ::selection {
+    background: var(--color-lime);
+    color: var(--color-void);
+  }
 
-/* Visible focus ring — lime, which clears 3:1 against every surface token. */
-:focus-visible {
-  outline: 2px solid var(--color-lime);
-  outline-offset: 2px;
-  border-radius: 6px;
-}
+  /* Visible focus ring — lime, which clears 3:1 against every surface token. */
+  :focus-visible {
+    outline: 2px solid var(--color-lime);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
 
-/* Dark form controls: without this the UA paints light native widgets. */
-input,
-textarea,
-select,
-button {
-  font: inherit;
-  color: inherit;
-}
+  /* Dark form controls: without this the UA paints light native widgets. */
+  input,
+  textarea,
+  select,
+  button {
+    font: inherit;
+    color: inherit;
+  }
 
-input::placeholder,
-textarea::placeholder {
-  color: var(--color-dim);
-}
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--color-dim);
+  }
 
-/* Quiet scrollbars that belong to the dark chrome. */
-* {
-  scrollbar-color: var(--color-line-2) transparent;
-  scrollbar-width: thin;
-}
-::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: var(--color-line-2);
-  border: 3px solid transparent;
-  background-clip: content-box;
-  border-radius: 999px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #454d59;
-  background-clip: content-box;
-}
+  /* Quiet scrollbars that belong to the dark chrome. */
+  * {
+    scrollbar-color: var(--color-line-2) transparent;
+    scrollbar-width: thin;
+  }
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-line-2);
+    border: 3px solid transparent;
+    background-clip: content-box;
+    border-radius: 999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #454d59;
+    background-clip: content-box;
+  }
 
-/* Range inputs — used by the caption style panel, the Studio inspector and
-   both transport scrubbers, so they are styled once, here. */
-input[type="range"] {
-  -webkit-appearance: none;
-  appearance: none;
-  height: 20px;
-  background: transparent;
-  cursor: pointer;
-}
-input[type="range"]::-webkit-slider-runnable-track {
-  height: 4px;
-  border-radius: 999px;
-  background: var(--color-line-2);
-}
-input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  margin-top: -6px;
-  height: 16px;
-  width: 16px;
-  border-radius: 999px;
-  background: var(--color-lime);
-  border: none;
-  box-shadow: 0 0 0 3px var(--color-base);
-  transition: transform 0.15s var(--ease-out-soft);
-}
-input[type="range"]:hover::-webkit-slider-thumb {
-  transform: scale(1.14);
-}
-input[type="range"]::-moz-range-track {
-  height: 4px;
-  border-radius: 999px;
-  background: var(--color-line-2);
-}
-input[type="range"]::-moz-range-thumb {
-  height: 16px;
-  width: 16px;
-  border: none;
-  border-radius: 999px;
-  background: var(--color-lime);
-  box-shadow: 0 0 0 3px var(--color-base);
-}
-input[type="range"]:disabled {
-  opacity: 0.4;
-  cursor: default;
-}
-input[type="range"]:disabled::-webkit-slider-thumb {
-  background: var(--color-line-2);
-}
-input[type="range"]:disabled::-moz-range-thumb {
-  background: var(--color-line-2);
-}
+  /* Range inputs — used by the caption style panel, the Studio inspector and
+     both transport scrubbers, so they are styled once, here. */
+  input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 20px;
+    background: transparent;
+    cursor: pointer;
+  }
+  input[type="range"]::-webkit-slider-runnable-track {
+    height: 4px;
+    border-radius: 999px;
+    background: var(--color-line-2);
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    margin-top: -6px;
+    height: 16px;
+    width: 16px;
+    border-radius: 999px;
+    background: var(--color-lime);
+    border: none;
+    box-shadow: 0 0 0 3px var(--color-shell);
+    transition: transform 0.15s var(--ease-out-soft);
+  }
+  input[type="range"]:hover::-webkit-slider-thumb {
+    transform: scale(1.14);
+  }
+  input[type="range"]::-moz-range-track {
+    height: 4px;
+    border-radius: 999px;
+    background: var(--color-line-2);
+  }
+  input[type="range"]::-moz-range-thumb {
+    height: 16px;
+    width: 16px;
+    border: none;
+    border-radius: 999px;
+    background: var(--color-lime);
+    box-shadow: 0 0 0 3px var(--color-shell);
+  }
+  input[type="range"]:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+  input[type="range"]:disabled::-webkit-slider-thumb {
+    background: var(--color-line-2);
+  }
+  input[type="range"]:disabled::-moz-range-thumb {
+    background: var(--color-line-2);
+  }
 
-/* Native color swatch, de-chromed so it reads as one of our own controls. */
-input[type="color"] {
-  -webkit-appearance: none;
-  appearance: none;
-  padding: 0;
-  border: none;
-  background: none;
-  cursor: pointer;
-}
-input[type="color"]::-webkit-color-swatch-wrapper {
-  padding: 0;
-}
-input[type="color"]::-webkit-color-swatch {
-  border: none;
-  border-radius: 8px;
-}
-input[type="color"]::-moz-color-swatch {
-  border: none;
-  border-radius: 8px;
+  /* Native color swatch, de-chromed so it reads as one of our own controls. */
+  input[type="color"] {
+    -webkit-appearance: none;
+    appearance: none;
+    padding: 0;
+    border: none;
+    background: none;
+    cursor: pointer;
+  }
+  input[type="color"]::-webkit-color-swatch-wrapper {
+    padding: 0;
+  }
+  input[type="color"]::-webkit-color-swatch {
+    border: none;
+    border-radius: 8px;
+  }
+  input[type="color"]::-moz-color-swatch {
+    border: none;
+    border-radius: 8px;
+  }
 }
 
 /* ==================================================================== *
@@ -358,13 +384,13 @@ input[type="color"]::-moz-color-swatch {
 
 /* The light artboard/video stage floating on dark chrome. */
 @utility stage-surface {
-  background: var(--color-paper);
+  background: var(--color-artboard);
   box-shadow: var(--shadow-stage);
 }
 
 /* Dotted ground the artboard sits on — the "workbench" texture. */
 @utility stage-dots {
-  background-color: var(--color-base);
+  background-color: var(--color-shell);
   background-image: radial-gradient(circle at 1px 1px, var(--color-line-2) 1px, transparent 0);
   background-size: 22px 22px;
 }
@@ -429,36 +455,39 @@ input[type="color"]::-moz-color-swatch {
  * Motion layer
  * ==================================================================== */
 
-/* Scroll reveal — the <Reveal> wrapper toggles .is-in on intersection. */
-.reveal {
-  opacity: 0;
-  transform: translateY(28px);
-  transition:
-    opacity 0.7s var(--ease-out-expo),
-    transform 0.7s var(--ease-out-expo);
-  will-change: opacity, transform;
-}
-.reveal.is-in {
-  opacity: 1;
-  transform: none;
-}
-.reveal-scale {
-  transform: translateY(22px) scale(0.97);
-}
+/* Scroll reveal and the marker swipe are component-level, so a utility on the
+   same element still wins. */
+@layer components {
+  .reveal {
+    opacity: 0;
+    transform: translateY(28px);
+    transition:
+      opacity 0.7s var(--ease-out-expo),
+      transform 0.7s var(--ease-out-expo);
+    will-change: opacity, transform;
+  }
+  .reveal.is-in {
+    opacity: 1;
+    transform: none;
+  }
+  .reveal-scale {
+    transform: translateY(22px) scale(0.97);
+  }
 
-/* Animated marker swipe behind a word. Lime at low alpha keeps the chalk
-   text above it well clear of 4.5:1. */
-.marker-hl {
-  position: absolute;
-  inset: 0.52em -0.16em 0.05em;
-  z-index: 0;
-  border-radius: 0.28em;
-  transform: scaleX(0);
-  transform-origin: left center;
-  transition: transform 0.55s var(--ease-out-expo) 0.15s;
-}
-.marker-hl.is-in {
-  transform: scaleX(1);
+  /* Animated marker swipe behind a word. Lime at low alpha keeps the chalk
+     text above it well clear of 4.5:1. */
+  .marker-hl {
+    position: absolute;
+    inset: 0.52em -0.16em 0.05em;
+    z-index: 0;
+    border-radius: 0.28em;
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 0.55s var(--ease-out-expo) 0.15s;
+  }
+  .marker-hl.is-in {
+    transform: scaleX(1);
+  }
 }
 
 @keyframes jima-marquee-left {

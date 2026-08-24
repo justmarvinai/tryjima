@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { BODY_FONT_CHOICES, FONT_CHOICES, THEME_KEYS, THEME_PRESETS, type Values } from "@jima/engine";
 import { getTemplate } from "@jima/templates";
-import { CAPTION_FONTS, captionFontForMotionId, drawCaptions, loadFonts, DEFAULT_CAPTION_STYLE, type Cue } from "@jima/captions";
+import { captionFontForMotionId, drawCaptions, loadFont, DEFAULT_CAPTION_STYLE, type Cue } from "@jima/captions";
 import { PosterThumb } from "@/motion/components/PosterThumb";
 import { SiteHeader } from "@/shell/SiteHeader";
 import { SiteFooter } from "@/shell/SiteFooter";
@@ -225,13 +225,13 @@ export default function Brand() {
 
               <div className="grid gap-6 sm:grid-cols-2">
                 <figure className="overflow-hidden rounded-bento border border-line bg-surface">
-                  <div className="border-b border-line bg-base px-4 py-2.5">
+                  <div className="border-b border-line bg-shell px-4 py-2.5">
                     <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-dim">Jima Motion</p>
                   </div>
                   {def ? (
                     <PosterThumb def={def} aspect="4:5" values={previewValues} alt="Template preview with your brand colours" />
                   ) : (
-                    <div className="aspect-[4/5] bg-base" />
+                    <div className="aspect-[4/5] bg-shell" />
                   )}
                   <figcaption className="px-4 py-3 text-xs text-dim">
                     {def?.name ?? "Template"} · applied to background, text and accent
@@ -239,7 +239,7 @@ export default function Brand() {
                 </figure>
 
                 <figure className="overflow-hidden rounded-bento border border-line bg-surface">
-                  <div className="border-b border-line bg-base px-4 py-2.5">
+                  <div className="border-b border-line bg-shell px-4 py-2.5">
                     <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-dim">Jima Captions</p>
                   </div>
                   <CaptionPreview draft={draft} />
@@ -360,10 +360,13 @@ function CaptionPreview({ draft }: { draft: Draft }) {
       drawCaptions(ctx, 1.0, { cues: PREVIEW_CUE, style, videoWidth: W, videoHeight: H }, { clear: false });
     };
 
-    // The caption face may not be resident yet; draw once immediately so the
-    // panel is never blank, then again once the font is in.
+    // The caption face is loaded on demand through the FontFace loader, so it
+    // may not be resident yet. Draw once immediately (the panel is never blank),
+    // then redraw when the face lands — canvas silently falls back to a serif
+    // otherwise. Only the one face the style actually uses is fetched.
     draw();
-    void loadFonts(CAPTION_FONTS.map((f) => f.key))
+    void loadFont(style.fontFamily)
+      .then(() => document.fonts.ready)
       .then(draw)
       .catch(draw);
 
@@ -373,7 +376,7 @@ function CaptionPreview({ draft }: { draft: Draft }) {
   }, [style, draft.background]);
 
   return (
-    <div className="aspect-[4/5] w-full bg-base">
+    <div className="aspect-[4/5] w-full bg-shell">
       <canvas
         ref={canvasRef}
         width={W}

@@ -8,7 +8,7 @@ import { test, expect, type Page } from "@playwright/test";
 test.use({ viewport: { width: 1300, height: 850 } });
 
 async function openEditor(page: Page) {
-  await page.goto("/studio");
+  await page.goto("/motion");
   await page.getByRole("heading", { name: "Pick a template" }).waitFor({ timeout: 30000 });
   await page.getByRole("button", { name: "Open Kinetic Headline" }).click();
   await page.locator("canvas").first().waitFor({ timeout: 30000 });
@@ -35,7 +35,7 @@ test("palette preset fills the color fields", async ({ page }) => {
 
 test("export produces a downloadable file through the modal", async ({ page }) => {
   await openEditor(page);
-  await page.getByRole("button", { name: /Export ▸/ }).click();
+  await page.getByRole("button", { name: "Export", exact: true }).click();
   const dialog = page.getByRole("dialog", { name: "Export" });
   await dialog.waitFor();
   // Use the GIF path — fast and always available — to validate the modal
@@ -61,7 +61,7 @@ test("edits survive a reload (autosave + restore)", async ({ page }) => {
 // ─── Library: favourites + filters ────────────────────────────────────────────
 
 async function openGallery(page: Page) {
-  await page.goto("/studio");
+  await page.goto("/motion");
   await page.getByRole("heading", { name: "Pick a template" }).waitFor({ timeout: 30000 });
 }
 

@@ -91,11 +91,14 @@ export function Editor({
   return (
     <div className="flex h-dvh flex-col overflow-hidden bg-void">
       <Topbar def={def} onBack={onBack} onExport={() => setExportOpen(true)} />
+      {/* The gallery's h1 is "Pick a template"; inside the editor the document
+          needs one of its own, and the template being edited is the answer. */}
+      <h1 className="sr-only">Jima Motion — editing {def.name}</h1>
 
       <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
         <TemplateRail templates={templates} currentId={def.id} onSelect={(t) => openTemplate(t)} />
         <PreviewStage containerRef={containerRef} preview={preview} />
-        <aside className="flex max-h-[46vh] w-full shrink-0 flex-col border-t border-line bg-base lg:max-h-none lg:w-[360px] lg:border-l lg:border-t-0">
+        <aside className="flex max-h-[46vh] w-full shrink-0 flex-col border-t border-line bg-shell lg:max-h-none lg:w-[360px] lg:border-l lg:border-t-0">
           <Inspector def={def} baseDuration={preview.duration} />
         </aside>
       </div>

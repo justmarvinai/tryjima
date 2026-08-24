@@ -99,7 +99,7 @@ const clamp01 = (u: number): number => (u < 0 ? 0 : u > 1 ? 1 : u);
 /**
  * Deterministic timeline. `evaluate(t)` writes every animated property to a
  * defined value derived only from t — it never accumulates state across calls,
- * so seeking is exact and golden frames are stable (TECHNICAL_ARCHITECTURE.md §6).
+ * so seeking is exact and golden frames are stable (docs/MOTION_ARCHITECTURE.md §6).
  *
  * When several tweens drive the same (target, prop), the one whose `start` is the
  * latest at-or-before t wins; before any starts, the earliest tween's `from`

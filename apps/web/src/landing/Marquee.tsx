@@ -42,13 +42,13 @@ function Row({ items, direction }: { items: TemplateDefinition[]; direction: "le
 }
 
 export default function Marquee() {
-  // Sample the library evenly for a varied, lighter marquee — rendering every
-  // one of the templates would be hundreds of WebGL draws. This gives a
-  // representative spread that scrolls at a calm, readable pace.
-  const sample = templates.filter((_, i) => i % 6 === 0);
+  // Sample the library evenly for a varied, lighter marquee. Every poster is a
+  // real engine render, so this is the difference between ~40 WebGL draws and
+  // ~500; the rows are long enough to loop seamlessly either way.
+  const sample = templates.filter((_, i) => i % 12 === 0);
   const half = Math.ceil(sample.length / 2);
   return (
-    <section className="overflow-hidden border-t border-line bg-void py-20 sm:py-24" aria-label="Template previews">
+    <section id="templates" className="overflow-hidden border-t border-line bg-void py-20 sm:py-24" aria-label="Template previews">
       <Container>
         <SectionHeading
           align="center"

@@ -11,8 +11,8 @@ export function TemplateRail({
   onSelect: (def: TemplateDefinition) => void;
 }) {
   return (
-    <nav aria-label="Templates" className="hidden w-[84px] shrink-0 flex-col border-r border-line bg-base lg:flex">
-      <div className="sticky top-0 z-10 border-b border-line bg-base/90 px-2 py-2.5 backdrop-blur">
+    <nav aria-label="Templates" className="hidden w-[84px] shrink-0 flex-col border-r border-line bg-shell lg:flex">
+      <div className="sticky top-0 z-10 border-b border-line bg-shell/90 px-2 py-2.5 backdrop-blur">
         <p className="text-center text-[10px] font-bold uppercase tracking-[0.14em] text-dim">Library</p>
       </div>
       <div className="flex flex-col gap-2 overflow-y-auto p-2">
