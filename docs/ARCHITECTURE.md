@@ -192,8 +192,24 @@ the gallery.
 
 ## 8. Deployment
 
-Static SPA on Vercel. `vercel.json` at the root: `pnpm build` →
-`apps/web/dist`, SPA rewrites for everything that is not a real file, the
-isolation headers above, and immutable caching for `/assets` and `/fonts`.
+Static SPA on Vercel. No serverless functions, no backend of any kind.
 
-No serverless functions. No backend of any kind.
+**There are two `vercel.json` files, and they are deliberate twins.** Vercel
+reads config from the project's *Root Directory* only, and this repo can
+plausibly be wired either way — root, or `apps/web`. Whichever is in play, the
+deploy needs the same three things: the cross-origin isolation headers from § 5,
+the SPA rewrites (without them `/captions` 404s on a hard refresh), and
+immutable caching for `/assets` and `/fonts`. So both files carry them. **Change
+one, change the other.**
+
+Two things that have already bitten here:
+
+- **`vercel.json` accepts no keys outside its schema — not even a `//`
+  comment.** A `//` key fails validation before the build starts, which is why
+  this note lives here rather than in the file.
+- **Don't put build steps in the repo root's `prebuild`.** Vercel may invoke
+  `vite build` from `apps/web` directly, which skips the root script entirely.
+  A deploy went out that way with no `/ort/` runtime at all — the app built
+  fine and transcription would have 404'd in production. Anything the build
+  genuinely needs belongs in `@jima/web`'s own `build` script, which is where
+  the onnxruntime-web copy and the post-build prune now live.

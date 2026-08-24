@@ -146,6 +146,19 @@ Requires Node ≥ 20.11 and pnpm 10. Run `pnpm install` once.
   weight for anything the engine or the caption renderer draws. The variable
   faces are for chrome only.
 
+### Deploy
+
+- **`vercel.json` rejects any key outside its schema**, including a `//`
+  comment. Validation fails before the build runs.
+- **Vercel may run `vite build` straight from `apps/web`**, skipping the repo
+  root's `prebuild`. Anything the build needs (the onnxruntime-web copy, the
+  post-build prune) lives in `@jima/web`'s own `build` script for that reason —
+  a deploy once shipped with no `/ort/` runtime and would have 404'd on
+  transcription.
+- There are **two `vercel.json` files on purpose** (root and `apps/web`), since
+  Vercel reads only the one in the project's Root Directory. Change one, change
+  the other — see `docs/ARCHITECTURE.md` § 8.
+
 ### Video
 
 - Firefox `VideoEncoder.isConfigSupported()` can approve H.264 and then fail on
