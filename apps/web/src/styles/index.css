@@ -417,6 +417,151 @@
   box-shadow: inset 0 1px 0 rgb(255 255 255 / 6%);
 }
 
+/* ==================================================================== *
+ * The landing stage
+ *
+ * The landing does not use the flat `bg-void` the app chrome uses. It is a
+ * painted, grainy field — a deliberate move away from the smooth gradient-mesh
+ * hero every other tool ships. Three parts, meant to be layered in this order:
+ *
+ *   painted-dark   the ground: void plus three very low accent washes
+ *   brush-grain    the overlay that stops it reading as a CSS gradient
+ *   (art)          the waveform / grid / product fragments on top
+ * ==================================================================== */
+
+@utility painted-dark {
+  background-color: var(--color-void);
+  background-image:
+    radial-gradient(68% 52% at 80% 4%, rgb(200 255 61 / 13%) 0%, transparent 62%),
+    radial-gradient(52% 44% at 8% 30%, rgb(94 234 212 / 8%) 0%, transparent 66%),
+    radial-gradient(85% 55% at 46% 108%, rgb(167 139 250 / 9%) 0%, transparent 70%);
+}
+
+/*
+ * Brushed film grain. `feTurbulence` at a low base frequency gives broad,
+ * cloudy strokes rather than the fine sensor noise the hero phone uses — this
+ * is the "painted" part, and it is what makes the ground feel like a surface
+ * instead of a fill. `overlay` so it darkens and lightens rather than veiling.
+ */
+@utility brush-grain {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='320'%3E%3Cfilter id='b'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.014 0.021' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='320' height='320' filter='url(%23b)'/%3E%3C/svg%3E");
+  background-size: 320px 320px;
+  mix-blend-mode: overlay;
+}
+
+/* Fine horizontal rule texture for statement bands — a video signal, not a
+   fabric. Sits at very low alpha so type stays the loudest thing. */
+@utility scanlines {
+  background-image: repeating-linear-gradient(
+    0deg,
+    rgb(255 255 255 / 3.5%) 0 1px,
+    transparent 1px 5px
+  );
+}
+
+/*
+ * The hero headline. Bigger, tighter and wider than `headline-xl`: this is
+ * poster type set at 8–10% of the viewport, where the default tracking opens up
+ * far too much and the extra width keeps it from looking spindly.
+ */
+@utility headline-mega {
+  font-family: var(--font-display);
+  font-stretch: 118%;
+  font-weight: 800;
+  letter-spacing: -0.045em;
+  line-height: 0.86;
+}
+
+/* Very slow wander for the hero's accent washes, so the ground is never quite
+   still without ever being distracting. */
+@keyframes jima-aurora {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  33% {
+    transform: translate3d(2.5%, -1.5%, 0) scale(1.06);
+  }
+  66% {
+    transform: translate3d(-2%, 2%, 0) scale(1.03);
+  }
+}
+.aurora-drift {
+  animation: jima-aurora 34s ease-in-out infinite;
+}
+
+/* One word of the hero headline arriving. `both` holds the from-state through
+   the stagger delay; the component drops the class entirely under reduced
+   motion, since the global override resets duration but not delay. */
+@keyframes jima-word-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.18em);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.word-in {
+  animation: jima-word-in 560ms var(--ease-out-expo) both;
+}
+
+/* ── Landing panel art ─────────────────────────────────────────────────
+   Looping demonstrations, driven entirely by stagger: each word carries the
+   same keyframe and a delay of `i * cycle / n`, so the highlight walks the
+   line and repeats without a frame of JS. */
+@keyframes jima-karaoke {
+  0%,
+  11% {
+    color: var(--color-lime);
+  }
+  17%,
+  100% {
+    color: #ffffff;
+  }
+}
+.karaoke {
+  animation-name: jima-karaoke;
+  animation-timing-function: steps(1, end);
+  animation-iteration-count: infinite;
+}
+
+@keyframes jima-mini-rise {
+  0% {
+    opacity: 0;
+    transform: translateY(0.45em);
+  }
+  16%,
+  88% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-0.18em);
+  }
+}
+.mini-rise {
+  animation: jima-mini-rise 5.5s var(--ease-out-expo) infinite;
+}
+
+@keyframes jima-mini-wipe {
+  0% {
+    transform: scaleX(0);
+  }
+  20%,
+  90% {
+    transform: scaleX(1);
+  }
+  100% {
+    transform: scaleX(0);
+  }
+}
+.mini-wipe {
+  animation: jima-mini-wipe 5.5s var(--ease-out-expo) infinite;
+}
+
 /*
  * Horizontal edge fade for rails wider than their container (template
  * marquee, hero carousel). A mask, not two opaque gradient overlays: the
@@ -611,7 +756,11 @@
   }
   .float-slow,
   .float-slower,
-  .drift-slow {
+  .drift-slow,
+  .aurora-drift,
+  .karaoke,
+  .mini-rise,
+  .mini-wipe {
     animation: none !important;
   }
   .fade-up {

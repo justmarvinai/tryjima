@@ -8,7 +8,11 @@ test.use({ viewport: { width: 1300, height: 900 } });
 
 test("landing renders and both product CTAs open their tool", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: /Caption it/ })).toBeVisible();
+  // 20s like every other route-mount wait in this file. The default 5s is fine
+  // when this test runs alone and is not when it runs behind the a11y suite on
+  // a loaded SwiftShader box — the hero boots WebGL previews and an animated
+  // ground, and first paint has been seen to take longer than five seconds.
+  await expect(page.getByRole("heading", { name: /Caption it/ })).toBeVisible({ timeout: 20000 });
 
   await page.getByRole("link", { name: "Open Motion" }).first().click();
   await expect(page).toHaveURL(/\/motion$/);
@@ -18,10 +22,13 @@ test("landing renders and both product CTAs open their tool", async ({ page }) =
   await page.getByRole("link", { name: "Caption a video" }).first().click();
   await expect(page).toHaveURL(/\/captions$/);
   // Either the dropzone or the capability floor is a pass here: this asserts
-  // the route mounts, not that the browser can encode video.
+  // the route mounts, not that the browser can encode video, and not how fast
+  // it gets there. 45s because the Captions route is a large lazy chunk served
+  // by the dev server, and behind the a11y suite on this box it has been seen
+  // to take longer than twenty seconds to arrive.
   await expect(
     page.getByRole("heading", { name: /Drop your video|can't run Captions/ }),
-  ).toBeVisible({ timeout: 20000 });
+  ).toBeVisible({ timeout: 45000 });
 });
 
 test("the tools menu lists both products", async ({ page }) => {
@@ -49,6 +56,47 @@ const railScrollLeft = () =>
  * it happened to be at (0, 101 and 837 have all been seen for the same click).
  */
 const SCROLL_SETTLE_MS = 15_000;
+
+/*
+ * The headline is a caption line, and the transport under it is a real control
+ * rather than an ornament. Keyboard rather than a drag, because it is exact:
+ * the first key press also takes the playhead off the auto-play, so everything
+ * after it is deterministic.
+ */
+test("the headline scrubber drives the caption highlight", async ({ page }) => {
+  await page.goto("/");
+  const slider = page.getByRole("slider", { name: "Scrub the headline captions" });
+  await slider.waitFor({ timeout: 20000 });
+
+  await slider.focus();
+  await page.keyboard.press("Home");
+  await expect(slider).toHaveAttribute("aria-valuenow", "0");
+  const atStart = await slider.getAttribute("aria-valuetext");
+
+  await page.keyboard.press("End");
+  await expect(slider).toHaveAttribute("aria-valuenow", "100");
+  const atEnd = await slider.getAttribute("aria-valuetext");
+
+  // The value text names the word under the playhead, so a different word at
+  // each end is the whole point: the highlight really did move.
+  expect(atEnd).not.toBe(atStart);
+  expect(atStart).toContain("Caption");
+});
+
+test("the tool switcher swaps the panel", async ({ page }) => {
+  await page.goto("/");
+  const captions = page.getByRole("tab", { name: "Captions" });
+  const motion = page.getByRole("tab", { name: "Motion" });
+  await captions.waitFor({ timeout: 20000 });
+
+  await expect(captions).toHaveAttribute("aria-selected", "true");
+  await expect(page.getByRole("heading", { name: "Jima Captions" })).toBeVisible();
+
+  await motion.click();
+  await expect(motion).toHaveAttribute("aria-selected", "true");
+  await expect(page.getByRole("heading", { name: "Jima Motion" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Jima Captions" })).toBeHidden();
+});
 
 /*
  * Compositing guards for the rail.
@@ -106,10 +154,17 @@ test("the hero rail composites its live previews rather than repainting them", a
 
 test("hovering a hero card keeps its live preview alive", async ({ page }) => {
   await page.goto("/");
-  await page.locator('a[aria-label^="Edit "]').first().waitFor({ timeout: 20000 });
-  // Give the first cards time to swap their poster for a real context.
+  const first = page.locator('a[aria-label^="Edit "]').first();
+  await first.waitFor({ timeout: 20000 });
+  // Scroll to the rail first. It sits below the stage, so on a laptop-height
+  // viewport it starts just outside the observer's margin and no context is
+  // built until a visitor comes down to it — which is the intended behaviour,
+  // and means asserting from the top of the page is a race.
+  await first.scrollIntoViewIfNeeded();
+  // Then give the cards time to swap their posters for real contexts; four
+  // WebGL boots on SwiftShader is not quick.
   await expect
-    .poll(() => page.locator('a[aria-label^="Edit "] canvas').count(), { timeout: 30000 })
+    .poll(() => page.locator('a[aria-label^="Edit "] canvas').count(), { timeout: 45000 })
     .toBeGreaterThan(0);
 
   await page.evaluate(() => {
@@ -146,7 +201,21 @@ test.describe("hero carousel", () => {
 
   test("arrows page through more templates", async ({ page }) => {
     await page.goto("/");
-    await page.locator('a[aria-label^="Edit "]').first().waitFor({ timeout: 20000 });
+    const firstCard = page.locator('a[aria-label^="Edit "]').first();
+    await firstCard.waitFor({ timeout: 20000 });
+
+    // Bring the rail up and let its previews finish booting BEFORE touching an
+    // arrow. Clicking straight away makes Playwright scroll the button into
+    // view, which is the same moment four WebGL contexts spin up — and a
+    // smooth horizontal scroll competing with that on SwiftShader can outrun
+    // any reasonable settle timeout. (Asking for reduced motion does not help:
+    // this headless build reports `prefers-reduced-motion` as false regardless,
+    // so the previews mount and the paging really does animate.)
+    await firstCard.scrollIntoViewIfNeeded();
+    await expect
+      .poll(() => page.locator('a[aria-label^="Edit "] canvas').count(), { timeout: 45000 })
+      .toBeGreaterThan(0);
+
     const scrolled = () => page.evaluate(railScrollLeft);
     expect(await scrolled()).toBe(0);
 

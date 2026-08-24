@@ -203,7 +203,46 @@ Import from `@/ui`, never from the individual files.
 
 `apps/web/src/shell/` holds the chrome: `SiteHeader`, `SiteFooter`, `PageShell`,
 `ToolBar` (the 52px bar both editors share), `ProductSwitcher`,
-`CommandPalette`, `CapabilityFloor`, `RootBoundary`.
+`CommandPalette`, `CapabilityFloor`, `RootBoundary`. `SiteHeader` takes an
+optional `banner` — a slim strip above the nav row that collapses on the first
+scroll. Only the landing passes one.
+
+---
+
+## 7a. The landing stage
+
+The landing does not use the flat `bg-void` the app chrome uses, and it is not
+built from the two-column hero / feature-card-grid / stat-card vocabulary the
+rest of the category shares. Its own language, in `apps/web/src/landing/`:
+
+**Ground** (`stage/StageGround.tsx`). Three layers, in order: `painted-dark`
+(void plus three very low accent washes, drifting on `aurora-drift`), a waveform
+drawn 72 bars wide across the bottom with the part behind the playhead lit lime,
+and `brush-grain` over the top. The grain has to be above the waveform or the
+bars read as printed onto a clean surface rather than being part of it. The
+whole thing is bounded by the stage box — it must not run behind the template
+rail, where 72 bars at full strength fight a dozen bright poster frames.
+
+**Depth** (`stage/useStageParallax.ts`). The stage publishes `--px`/`--py`
+(pointer, −0.5…0.5) and `--sy` (its own scroll progress, 0…1) as custom
+properties on one element. Layers pick their own depth in plain CSS —
+`translate3d(calc(var(--px) * 30px), …)`. Deliberately not React state: a dozen
+layers reading a state variable would re-render the hero on every pointer move.
+
+**Interleaving** (`stage/Fragments.tsx`). Pieces of the two tools — a transcript
+cue, an aspect card — float at declared depths, and at least one of them passes
+in *front* of both the headline (z-10) and the device (z-20). A layer that
+crosses two other layers is what turns a background into a space; without it the
+composition is just a screenshot beside some text.
+
+**The headline** (`stage/CaptionedHeadline.tsx`) is a caption line, with a
+draggable transport under it. Two separate timelines: a one-shot entrance
+(`word-in`, staggered, never resting at a partial opacity — a half-faded
+headline is a contrast failure, and axe evaluates whatever state it samples) and
+the highlight, which either auto-plays once or follows the scrubber.
+
+Type at this scale uses `headline-mega` (118% width, −0.045em, 0.86 line-height)
+rather than `headline-xl`; `headline-xl`'s tracking opens up too far past ~5rem.
 
 ---
 

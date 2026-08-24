@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { cn, Wordmark, buttonClasses, ChevronDownIcon, CloseIcon, MenuIcon, ArrowRightIcon } from "@/ui";
 import { PRODUCTS } from "./products";
@@ -14,8 +14,13 @@ const NAV = [
  * The marketing header — landing and content pages only; the tools use
  * `ToolBar`. Transparent over the hero, then solidifies with a hairline once
  * the page scrolls, so the hero art is never boxed in by a bar.
+ *
+ * `banner` adds a slim strip above the nav row, and only the landing passes
+ * one. It collapses to nothing on the first scroll, so it announces something
+ * once and then gets out of the way rather than occupying 36px forever — and
+ * pages that pass nothing keep exactly the 64px header they had.
  */
-export function SiteHeader() {
+export function SiteHeader({ banner }: { banner?: ReactNode } = {}) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
@@ -47,6 +52,19 @@ export function SiteHeader() {
         scrolled ? "border-b border-line bg-void/85 backdrop-blur-xl" : "border-b border-transparent",
       )}
     >
+      {banner && (
+        <div
+          className={cn(
+            "overflow-hidden bg-lime transition-[height,opacity] duration-300 ease-out",
+            scrolled ? "h-0 opacity-0" : "h-9 opacity-100",
+          )}
+        >
+          <div className="mx-auto flex h-9 w-full max-w-6xl items-center justify-center gap-2 px-5 text-[12.5px] font-semibold text-void sm:px-6">
+            {banner}
+          </div>
+        </div>
+      )}
+
       <div className="mx-auto flex h-16 w-full max-w-6xl items-center gap-3 px-5 sm:px-6">
         <Link to="/" aria-label="Jima home" className="shrink-0 rounded-lg">
           <Wordmark className="text-[22px]" />

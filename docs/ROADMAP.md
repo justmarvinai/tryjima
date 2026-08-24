@@ -326,6 +326,8 @@ rendering, AI credits, dark mode.
 | Hero rail: no mask over the live previews, no paint transitions on hover, a fade on both edges | ✅ |
 | Hero Captions demo rebuilt as an angled device mock with a graded stand-in clip | ✅ |
 | Caption fonts load on the main thread — editor preview matches the export again | ✅ |
+| Landing rebuilt as a layered stage: painted ground, poster type, interleaved product fragments, pointer/scroll parallax | ✅ |
+| Hero headline is a scrubbable caption line; the two tools are one switchable stage | ✅ |
 
 ### Not done here (owner's call)
 

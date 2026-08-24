@@ -58,6 +58,28 @@ one domain and one design system. Nothing was dropped from either.
   the framework-free `@jima/captions` package.
 - Documentation reorganised into `docs/`; each predecessor's design doc is kept
   as `*_DESIGN_LEGACY.md` for history.
+- **The landing page was rebuilt as a stage rather than a stack of blocks.** It
+  shipped in the standard category vocabulary — two-column hero, feature-card
+  pair, stat cards — which made a genuinely unusual product look like everything
+  else. Now: a painted, grainy ground with the product's own waveform buried in
+  it and a playhead that advances as you scroll; poster-scale type; the device
+  crossing the headline's column instead of sitting beside it; and pieces of both
+  tools floating at declared depths, one of them passing in front of *both* the
+  headline and the device. Pointer and scroll parallax are published as CSS
+  custom properties on one element, so a dozen layers pick their own depth
+  without re-rendering anything.
+- **The headline is a caption line you can scrub.** The words are cues, the
+  highlight walks them exactly the way Captions walks a real transcript, and the
+  transport under it is a real slider — drag it, or use the arrow keys, and the
+  highlight follows at 130px. The hero is the product demo.
+- **The two tools are one switchable stage** instead of two cards, with the
+  three steps folded into each panel — the same three steps stated twice on one
+  page was padding, not clarity, so the separate "how it works" section is gone.
+  Motion's panel puts a white artboard on the dark ground, which states the
+  "dark shell, light canvas" rule in a picture rather than a paragraph.
+- The privacy section is a full-bleed statement at poster scale, the numbers
+  band runs at headline scale, and a slim promo strip sits above the nav on the
+  landing and collapses on the first scroll.
 - **The hero's Captions demo is a real device now** — a drawn iPhone at true
   19.5:9 with a titanium rail, bezel, Dynamic Island, side buttons, status bar
   and home indicator, turned about fifteen degrees off-axis and tilting under

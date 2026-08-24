@@ -1,9 +1,10 @@
 import { lazy, Suspense, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { SiteHeader } from "@/shell/SiteHeader";
 import { SiteFooter } from "@/shell/SiteFooter";
 import { Hero } from "@/landing/Hero";
-import { ProductSplit } from "@/landing/ProductSplit";
-import { PrivacyBand, BrandKitBand, Stats, HowItWorks } from "@/landing/Sections";
+import { ToolStage } from "@/landing/ToolStage";
+import { PrivacyBand, BrandKitBand, Stats } from "@/landing/Sections";
 import { Faq } from "@/landing/Faq";
 import { FinalCta } from "@/landing/FinalCta";
 
@@ -27,15 +28,24 @@ export default function Landing() {
 
   return (
     <div className="flex min-h-dvh flex-col bg-void">
-      <SiteHeader />
+      <SiteHeader
+        banner={
+          <>
+            <span className="hidden sm:inline">Captions and Motion are one Jima now.</span>
+            <span className="sm:hidden">Two tools, one Jima.</span>
+            <Link to="/whats-new" className="underline underline-offset-2 hover:no-underline">
+              See what changed
+            </Link>
+          </>
+        }
+      />
       <main className="flex-1">
         <Hero />
-        <ProductSplit />
+        <ToolStage />
         <PrivacyBand />
         <Suspense fallback={<div className="h-[32rem]" aria-hidden />}>
           <Marquee />
         </Suspense>
-        <HowItWorks />
         <BrandKitBand />
         <Stats />
         <Faq />

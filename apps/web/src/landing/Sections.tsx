@@ -4,9 +4,6 @@ import {
   buttonClasses,
   cn,
   Container,
-  Marker,
-  Reveal,
-  SectionHeading,
   ArrowRightIcon,
   ShieldIcon,
   BoltIcon,
@@ -14,8 +11,6 @@ import {
   FolderIcon,
   TypeIcon,
   LayersIcon,
-  WaveformIcon,
-  DownloadIcon,
 } from "@/ui";
 
 /* ==================================================================== *
@@ -42,43 +37,58 @@ const PRIVACY_POINTS = [
 
 export function PrivacyBand() {
   return (
-    <section className="border-t border-line bg-shell py-20 sm:py-28" aria-labelledby="privacy-title">
-      <Container>
-        <div className="grid gap-12 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:gap-16">
-          <div>
-            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-lime">Privacy by architecture</p>
-            <h2 id="privacy-title" className="headline-xl mt-4 text-4xl text-chalk sm:text-5xl">
-              Your footage never <Marker>leaves this tab</Marker>.
-            </h2>
-            <p className="mt-6 text-lg leading-relaxed text-ash">
-              Most "private" tools promise not to look at what you upload. Jima doesn't need the promise: nothing is
-              uploaded, so there is nothing to look at.
-            </p>
-            <Link to="/privacy" className={cn(buttonClasses("secondary", "md"), "group mt-8")}>
-              Read the privacy policy
-              <ArrowRightIcon width={16} height={16} className="transition-transform group-hover:translate-x-0.5" />
-            </Link>
-          </div>
+    <section
+      className="relative overflow-hidden border-t border-line bg-shell py-24 sm:py-32"
+      aria-labelledby="privacy-title"
+    >
+      {/* A video signal rather than a fabric: fine rules, one accent wash, and
+          nothing else. This band is a statement, so the only thing allowed to
+          be loud on it is the sentence. */}
+      <div className="pointer-events-none absolute inset-0 -z-10 scanlines opacity-70" aria-hidden />
+      <div
+        className="pointer-events-none absolute inset-0 -z-10"
+        style={{ background: "radial-gradient(58% 46% at 50% 0%, rgb(200 255 61 / 9%) 0%, transparent 70%)" }}
+        aria-hidden
+      />
 
-          <ul className="flex flex-col gap-3">
-            {PRIVACY_POINTS.map(({ icon: Icon, title, body }, i) => (
-              // The <li> has to be the direct child of the <ul>: wrapping it in
-              // Reveal's <div> breaks the list for assistive tech (axe flags it
-              // as both "list has non-li children" and "li with no list parent").
-              <li key={title} className="rounded-card border border-line bg-surface p-6">
-                <Reveal delay={i * 80}>
-                  <div className="flex items-center gap-3">
-                    <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-lime-tint text-lime ring-1 ring-inset ring-lime/25">
-                      <Icon width={17} height={17} />
-                    </span>
-                    <h3 className="font-display text-base font-semibold text-chalk">{title}</h3>
-                  </div>
-                  <p className="mt-3 text-[14.5px] leading-relaxed text-ash">{body}</p>
-                </Reveal>
-              </li>
-            ))}
-          </ul>
+      <Container>
+        <p className="text-center text-[11px] font-bold uppercase tracking-[0.18em] text-lime">
+          Privacy by architecture
+        </p>
+
+        <h2
+          id="privacy-title"
+          className="headline-mega mx-auto mt-7 max-w-5xl text-center text-[clamp(2.5rem,7.4vw,6rem)] text-chalk"
+        >
+          Nothing is uploaded.
+          <br />
+          <span className="text-dim">There is no server.</span>
+        </h2>
+
+        <p className="mx-auto mt-9 max-w-2xl text-center text-lg leading-relaxed text-ash">
+          Most &ldquo;private&rdquo; tools promise not to look at what you upload. Jima doesn&rsquo;t need the
+          promise — your video is decoded, transcribed, drawn on and re-encoded by your own browser, and the site
+          itself is static files on a CDN.
+        </p>
+
+        <div className="mt-11 flex justify-center">
+          <Link to="/privacy" className={cn(buttonClasses("secondary", "md"), "group")}>
+            Read the privacy policy
+            <ArrowRightIcon width={16} height={16} className="transition-transform group-hover:translate-x-0.5" />
+          </Link>
         </div>
+
+        <ul className="mt-16 grid gap-px overflow-hidden rounded-bento border border-line bg-line md:grid-cols-3">
+          {PRIVACY_POINTS.map(({ icon: Icon, title, body }) => (
+            <li key={title} className="bg-shell p-7">
+              <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-lime-tint text-lime ring-1 ring-inset ring-lime/25">
+                <Icon width={17} height={17} />
+              </span>
+              <h3 className="mt-4 font-display text-base font-semibold text-chalk">{title}</h3>
+              <p className="mt-2.5 text-[14px] leading-relaxed text-ash">{body}</p>
+            </li>
+          ))}
+        </ul>
       </Container>
     </section>
   );
@@ -168,103 +178,25 @@ const STATS: { value: string; label: string; note: string }[] = [
 
 export function Stats() {
   return (
-    <section className="border-t border-line bg-shell py-16 sm:py-20" aria-label="Jima by the numbers">
+    <section className="relative overflow-hidden border-t border-line bg-void" aria-label="Jima by the numbers">
+      <div className="pointer-events-none absolute inset-0 -z-10 brush-grain opacity-25" aria-hidden />
       <Container>
-        <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-bento border border-line bg-line lg:grid-cols-4">
+        <dl className="grid grid-cols-1 divide-y divide-line sm:grid-cols-2 sm:divide-x lg:grid-cols-4">
           {STATS.map((s) => (
-            <div key={s.label} className="bg-shell px-6 py-8 text-center">
+            <div key={s.label} className="group px-2 py-12 sm:px-6 lg:py-16">
               <dt className="sr-only">{s.label}</dt>
               <dd>
-                <span className="headline-xl block text-4xl text-lime sm:text-5xl">{s.value}</span>
-                <span className="mt-2 block font-display text-sm font-semibold text-chalk">{s.label}</span>
-                <span className="mt-1 block text-xs text-dim">{s.note}</span>
+                {/* Numbers at headline scale. A stat card with a 40px figure in
+                    it reads as a footnote; this reads as a claim. */}
+                <span className="headline-mega block text-[clamp(2.5rem,4.6vw,3.75rem)] text-chalk transition-colors duration-300 group-hover:text-lime">
+                  {s.value}
+                </span>
+                <span className="mt-3 block font-display text-[15px] font-semibold text-chalk">{s.label}</span>
+                <span className="mt-1 block text-[13px] text-dim">{s.note}</span>
               </dd>
             </div>
           ))}
         </dl>
-      </Container>
-    </section>
-  );
-}
-
-/* ==================================================================== *
- * How it works — three steps, per tool, side by side.
- * ==================================================================== */
-
-const FLOWS = [
-  {
-    tool: "Captions",
-    to: "/captions",
-    steps: [
-      { icon: DownloadIcon, title: "Drop an MP4", body: "Up to 200 MB and 60 seconds. It is read from disk, not sent anywhere." },
-      { icon: WaveformIcon, title: "It listens", body: "Whisper runs on your GPU (or CPU) and returns every word with its own timestamp." },
-      { icon: DownloadIcon, title: "Style and export", body: "Pick a preset, drag it into place, and burn it in at source quality." },
-    ],
-  },
-  {
-    tool: "Motion",
-    to: "/motion",
-    steps: [
-      { icon: LayersIcon, title: "Pick a template", body: `${TEMPLATE_COUNT} of them, filtered by what you're actually posting.` },
-      { icon: TypeIcon, title: "Make it yours", body: "Your words, your colours, your fonts, your aspect ratio, your pace." },
-      { icon: DownloadIcon, title: "Export", body: "MP4, WebM — transparent if you want — or a GIF. No watermark." },
-    ],
-  },
-];
-
-export function HowItWorks() {
-  return (
-    <section className="border-t border-line bg-void py-20 sm:py-28" aria-labelledby="how-title">
-      <Container>
-        <SectionHeading
-          eyebrow="How it goes"
-          title={<span id="how-title">Three steps. Either tool.</span>}
-          lead="No onboarding, no project setup, no sign-in wall. Open the tab and start."
-        />
-
-        <div className="mt-14 grid gap-6 lg:grid-cols-2">
-          {FLOWS.map((flow, fi) => (
-            <Reveal key={flow.tool} delay={fi * 90}>
-              <div className="h-full rounded-bento border border-line bg-surface p-7 sm:p-8">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-display text-xl font-bold tracking-tight text-chalk">Jima {flow.tool}</h3>
-                  <Link
-                    to={flow.to}
-                    className="group inline-flex items-center gap-1.5 text-[13px] font-semibold text-lime hover:text-lime-bright"
-                  >
-                    Open
-                    <ArrowRightIcon width={14} height={14} className="transition-transform group-hover:translate-x-0.5" />
-                  </Link>
-                </div>
-
-                <ol className="mt-6 flex flex-col gap-5">
-                  {flow.steps.map((s, i) => {
-                    const Icon = s.icon;
-                    return (
-                      <li key={s.title} className="flex gap-4">
-                        <span className="relative flex flex-col items-center">
-                          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-surface-2 text-lime ring-1 ring-inset ring-line">
-                            <Icon width={16} height={16} />
-                          </span>
-                          {i < flow.steps.length - 1 && (
-                            <span className="mt-1 w-px flex-1 bg-line" aria-hidden />
-                          )}
-                        </span>
-                        <span className="pb-1">
-                          <span className="flex items-baseline gap-2">
-                            <span className="font-mono text-[10px] tabular-nums text-dim">0{i + 1}</span>
-                            <span className="font-display text-[15px] font-semibold text-chalk">{s.title}</span>
-                          </span>
-                          <span className="mt-1 block text-[14px] leading-relaxed text-ash">{s.body}</span>
-                        </span>
-                      </li>
-                    );
-                  })}
-                </ol>
-              </div>
-            </Reveal>
-          ))}
-        </div>
       </Container>
     </section>
   );
