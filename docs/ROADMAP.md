@@ -322,6 +322,7 @@ rendering, AI credits, dark mode.
 |---|---|
 | Safari / Firefox / mobile spot-checks | This environment is Chromium-only (SwiftShader). Run them on the live URL. |
 | Domain, DNS, Vercel project wiring | Owner-side. `vercel.json` is ready. |
-| A real end-to-end transcription run | Would pull a ~150 MB model into CI on every run; the pipeline is covered by unit tests and the renderer by a browser smoke test. |
+| A real end-to-end transcription run | Would pull a ~150 MB model into CI on every run. The pipeline is unit-tested, the shared renderer has a browser smoke test, and the worker is verified to compile and bundle. |
+| A real Captions video export in CI | This headless Chromium has no H.264 encoder (the Motion MP4 export test skips for the same reason), and there is no ffmpeg here to author an `.mp4` fixture with. Input validation is covered in the browser; the encode itself is not. Worth one manual export on the live URL. |
 
 *(Update this table + CHANGELOG.md at every phase transition.)*
