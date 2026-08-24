@@ -47,8 +47,13 @@ const LINE_LENGTH_S = 3.6;
 
 const MAX_TILT = 5; // degrees of pointer parallax, on top of the resting angle
 
-/** The resting three-axis angle. Turned to face the headline on its left. */
-const REST = { x: 2.5, y: -15, z: -1.5 };
+/**
+ * The resting three-axis angle. Turned to face the headline on its left, and
+ * leaning back on its corner the way a product shot stands a device up rather
+ * than standing it to attention — a real photograph of one of these is never
+ * square to the frame.
+ */
+const REST = { x: 3, y: -16, z: 16 };
 
 /**
  * Fixed, hand-placed bokeh — deliberately not random: it must not move between

@@ -65,9 +65,16 @@ export function Hero() {
 
         <Container className="relative">
           {/* The device. Absolutely placed from `lg` up so it can overlap the
-              headline's column; in normal flow below that, under the copy. */}
+              headline's column; in normal flow below that, under the copy.
+
+              The right offsets look over-generous and are not: the device rests
+              at a 16° roll, and rotating a 15rem × 33rem box by that much grows
+              its bounding width by ~70px a side. Sit it flush and the stage's
+              `overflow-hidden` crops the top-right corner — which lands exactly
+              on the status bar, so it reads as a mistake rather than as a crop.
+              These clear it at 1024 and at 1280, the two tightest widths. */}
           <div
-            className="pointer-events-none absolute right-0 top-[1rem] z-20 hidden w-[16.5rem] lg:block xl:right-[-1.5rem] xl:w-[18.5rem]"
+            className="pointer-events-none absolute right-[3rem] top-[2rem] z-20 hidden w-[15rem] lg:block xl:right-[1rem] xl:w-[17rem]"
             style={{ transform: "translate3d(calc(var(--px, 0) * 26px), calc(var(--py, 0) * 20px), 0)" }}
           >
             <CaptionPhone />
@@ -123,7 +130,7 @@ export function Hero() {
           </div>
 
           {/* Below `lg` the device drops into the flow, centred under the copy. */}
-          <div className="mx-auto mt-16 w-full max-w-[17rem] lg:hidden">
+          <div className="mx-auto mt-16 w-full max-w-[14rem] lg:hidden">
             <CaptionPhone />
           </div>
         </Container>

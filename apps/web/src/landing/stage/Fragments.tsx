@@ -116,7 +116,14 @@ export function Fragments() {
           the device (z-20), bridging them — which is the whole trick: a layer
           that crosses two other layers is what turns a background into a space.
           Everything else on the stage is behind it. */}
-      <Floating depth={1} className="right-[13%] top-[31%] z-30" delay="-2.2s">
+      {/* Offsets here are against the whole stage, not the content container —
+          this element is `inset-0` on the stage. `right-[23%]` puts the card's
+          left edge inside the tail of "Animate it." at every width from `lg`
+          up, and `top-[41%]` crosses the line low enough that the glyphs stay
+          readable above it — a card sitting at mid-x-height reads as a missing
+          character rather than as a nearer layer. It also drops clear of the
+          device's own style chip, which the previous placement sat on top of. */}
+      <Floating depth={1} className="right-[23%] top-[41%] z-30" delay="-2.2s">
         <TranscriptCue />
       </Floating>
 
