@@ -2,18 +2,15 @@
   "name": "jima",
   "version": "2.0.0",
   "private": true,
-  "description": "Jima — one home for Jima Captions and Jima Motion. Free, no account, 100% in your browser.",
+  "description": "Jima \u2014 one home for Jima Captions and Jima Motion. Free, no account, 100% in your browser.",
   "type": "module",
   "packageManager": "pnpm@10.33.0",
   "engines": {
     "node": ">=20.11"
   },
   "scripts": {
-    "predev": "node scripts/copy-ort-wasm.mjs",
     "dev": "pnpm --filter @jima/web dev",
-    "prebuild": "node scripts/copy-ort-wasm.mjs",
     "build": "pnpm --filter @jima/web build",
-    "postbuild": "node scripts/prune-ort-assets.mjs",
     "preview": "pnpm --filter @jima/web preview",
     "typecheck": "pnpm -r typecheck",
     "lint": "eslint .",
