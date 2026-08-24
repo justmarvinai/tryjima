@@ -12,9 +12,23 @@ type FontFaceSetLike = {
   ready: Promise<unknown>;
 };
 
+type FontScope = { fonts?: FontFaceSetLike; document?: { fonts?: FontFaceSetLike } };
+
+/**
+ * `document.fonts` FIRST, and only then `self.fonts`.
+ *
+ * There is no `window.fonts`: a Window puts the set on its Document, and only a
+ * WorkerGlobalScope puts it on the global. Looking at `globalThis.fonts` alone
+ * therefore finds nothing on the main thread and takes the "no FontFaceSet"
+ * branch below, which silently returns as though there were nothing to load —
+ * so every caption rendered in the editor preview or on the brand page came out
+ * in a fallback face, while the export worker (which does have `self.fonts`)
+ * used the real one. A preview that disagrees with the export is the one thing
+ * this codebase is not allowed to ship.
+ */
 function fontFaceSet(): FontFaceSetLike | undefined {
-  const scope = globalThis as unknown as { fonts?: FontFaceSetLike };
-  return scope.fonts;
+  const scope = globalThis as unknown as FontScope;
+  return scope.document?.fonts ?? scope.fonts;
 }
 
 const loaded = new Map<string, Promise<void>>();

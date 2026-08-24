@@ -316,6 +316,17 @@ rendering, AI credits, dark mode.
 | a11y sweep green on the landing, both tools and every content page | ✅ |
 | `pnpm check` green; golden, export, audio and smoke suites pass | ✅ |
 
+### v2.0.0 — post-merge fixes
+
+| Item | Status |
+|---|---|
+| Deploy ships the ONNX runtime (`@jima/web`'s own `build` owns the copy + prune) | ✅ |
+| `vercel.json` passes schema validation (no keys outside the schema) | ✅ |
+| Closing CTA buttons legible on the lime band (`onAccent` variants) | ✅ |
+| Hero rail: no mask over the live previews, no paint transitions on hover, a fade on both edges | ✅ |
+| Hero Captions demo rebuilt as an angled device mock with a graded stand-in clip | ✅ |
+| Caption fonts load on the main thread — editor preview matches the export again | ✅ |
+
 ### Not done here (owner's call)
 
 | Item | Why |

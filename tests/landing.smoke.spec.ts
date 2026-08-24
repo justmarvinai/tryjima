@@ -50,6 +50,94 @@ const railScrollLeft = () =>
  */
 const SCROLL_SETTLE_MS = 15_000;
 
+/*
+ * Compositing guards for the rail.
+ *
+ * Four live WebGL canvases sit in it. Hovering a card used to flicker the wide
+ * 16:9 ones, because the rail carried a `mask-image` and each card ran
+ * `transition-all` over `box-shadow` and `border-color` — a mask pulls every
+ * descendant into one layer, and a paint transition then re-rasterises the
+ * canvases instead of letting the compositor move them. None of that shows up in
+ * a screenshot (the symptom is a dropped frame), so the only way to keep it from
+ * creeping back is to assert on the properties themselves.
+ *
+ * Dropping the mask is also what fixed the left-hand edge: it was a *directional*
+ * mask that collapsed to 0px on whichever side had nothing left to scroll to, so
+ * at rest the left arrow sat on a bright card with no fade behind it at all.
+ */
+test("the hero rail composites its live previews rather than repainting them", async ({ page }) => {
+  await page.goto("/");
+  await page.locator('a[aria-label^="Edit "]').first().waitFor({ timeout: 20000 });
+
+  const styles = await page.evaluate(() => {
+    const card = document.querySelector('a[aria-label^="Edit "]') as HTMLElement;
+    const rail = card.parentElement as HTMLElement;
+    const railStyle = getComputedStyle(rail);
+    const cards = Array.from(rail.querySelectorAll('a[aria-label^="Edit "]')) as HTMLElement[];
+    // The edge fades are the rail's gradient siblings — one per side.
+    const fades = Array.from(rail.parentElement!.children)
+      .filter((el) => el !== rail)
+      .map((el) => getComputedStyle(el as HTMLElement))
+      .filter((cs) => cs.backgroundImage.includes("gradient") && cs.position === "absolute")
+      .map((cs) => ({ left: cs.left, right: cs.right, opacity: Number(cs.opacity) }));
+    return {
+      railMask: railStyle.maskImage,
+      cardTransitions: [...new Set(cards.map((c) => getComputedStyle(c).transitionProperty))],
+      fades,
+    };
+  });
+
+  expect(styles.railMask).toBe("none");
+  // Every card transitions the composited properties and nothing else.
+  // (`transition-transform` expands to `transform, translate, scale, rotate`.)
+  expect(styles.cardTransitions).toHaveLength(1);
+  for (const t of styles.cardTransitions) {
+    expect(t).toContain("transform");
+    expect(t).not.toContain("all");
+    expect(t).not.toContain("box-shadow");
+    expect(t).not.toContain("border-color");
+  }
+  // One fade per side, and BOTH visible while parked at the start.
+  expect(styles.fades).toHaveLength(2);
+  for (const f of styles.fades) expect(f.opacity).toBeGreaterThan(0.3);
+  expect(styles.fades.some((f) => f.left === "0px")).toBe(true);
+  expect(styles.fades.some((f) => f.right === "0px")).toBe(true);
+});
+
+test("hovering a hero card keeps its live preview alive", async ({ page }) => {
+  await page.goto("/");
+  await page.locator('a[aria-label^="Edit "]').first().waitFor({ timeout: 20000 });
+  // Give the first cards time to swap their poster for a real context.
+  await expect
+    .poll(() => page.locator('a[aria-label^="Edit "] canvas').count(), { timeout: 30000 })
+    .toBeGreaterThan(0);
+
+  await page.evaluate(() => {
+    const rail = (document.querySelector('a[aria-label^="Edit "]') as HTMLElement).parentElement!;
+    const w = window as unknown as { __canvasChurn: number };
+    w.__canvasChurn = 0;
+    new MutationObserver((recs) => {
+      for (const r of recs) {
+        for (const n of [...r.addedNodes, ...r.removedNodes]) if (n.nodeName === "CANVAS") w.__canvasChurn++;
+      }
+    }).observe(rail, { childList: true, subtree: true });
+  });
+
+  // The card lifts 6px on hover. With a non-zero IntersectionObserver threshold
+  // that alone could cross the boundary, tearing the WebGL context down and
+  // rebuilding it on every hover — which is a flicker you can see.
+  const card = page.locator('a[aria-label^="Edit "]').first();
+  for (let i = 0; i < 3; i++) {
+    await card.hover();
+    await page.waitForTimeout(400);
+    await page.mouse.move(650, 60);
+    await page.waitForTimeout(400);
+  }
+
+  const churn = await page.evaluate(() => (window as unknown as { __canvasChurn: number }).__canvasChurn);
+  expect(churn).toBe(0);
+});
+
 test.describe("hero carousel", () => {
   // Asking for reduced motion still exercises the branch that skips the live
   // WebGL previews and leaves poster frames — worth having on a rail that

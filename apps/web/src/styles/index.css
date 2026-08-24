@@ -521,6 +521,18 @@
     transform: translateY(-10px);
   }
 }
+/* Slow "Ken Burns" push on the hero's stand-in footage — the thing that stops a
+   CSS scene reading as a still image. Scaled up throughout so the drift never
+   exposes an edge. */
+@keyframes jima-drift {
+  0%,
+  100% {
+    transform: scale(1.14) translate3d(-1.6%, 1.2%, 0);
+  }
+  50% {
+    transform: scale(1.22) translate3d(1.6%, -1.4%, 0);
+  }
+}
 @keyframes jima-fade-up {
   from {
     opacity: 0;
@@ -582,6 +594,9 @@
 .float-slower {
   animation: jima-float 10s ease-in-out infinite;
 }
+.drift-slow {
+  animation: jima-drift 26s ease-in-out infinite;
+}
 
 @media (prefers-reduced-motion: reduce) {
   /* Never hide reveal content or animate decoration when motion is reduced. */
@@ -595,7 +610,8 @@
     transition: none !important;
   }
   .float-slow,
-  .float-slower {
+  .float-slower,
+  .drift-slow {
     animation: none !important;
   }
   .fade-up {

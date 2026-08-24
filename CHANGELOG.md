@@ -58,6 +58,15 @@ one domain and one design system. Nothing was dropped from either.
   the framework-free `@jima/captions` package.
 - Documentation reorganised into `docs/`; each predecessor's design doc is kept
   as `*_DESIGN_LEGACY.md` for history.
+- **The hero's Captions demo is a real device now** — a drawn iPhone at true
+  19.5:9 with a titanium rail, bezel, Dynamic Island, side buttons, status bar
+  and home indicator, turned about fifteen degrees off-axis and tilting under
+  the pointer. The stand-in footage behind the captions went from a two-stop
+  gradient to a graded night scene with rack-focus bokeh, a slow push and film
+  grain, and the transport now reads as one cue inside a longer clip rather than
+  running the counter to the end. Still no bundled video and still no WebGL: it
+  is CSS, one webfont and a timer, because the hero has to paint before the
+  Motion engine is even downloaded.
 
 ### Fixed
 
@@ -83,6 +92,32 @@ one domain and one design system. Nothing was dropped from either.
   count comes from a small data module and the poster marquee is a lazy chunk.
 - Three pre-existing lint errors in the v1.19 template pack, and a `<ul>` on the
   landing whose children were `<div>`s.
+- **The deploy shipped without the ONNX runtime.** Vercel runs `vite build`
+  straight from `apps/web`, which skips the repo root's `prebuild` — so `/ort/`
+  was missing and transcription would have 404'd on the live site. The copy and
+  the post-build prune now live in `@jima/web`'s own `build` script.
+- **`vercel.json` rejected a `//` comment key.** Its schema permits nothing
+  outside itself, and validation runs before the build. The explanation moved to
+  `docs/ARCHITECTURE.md` § 8.
+- **The closing CTA's left button rendered black on black.** Tailwind picks
+  between two competing utilities by the order it *emits* them, not the order
+  they were written, and `.text-void` lands after `.text-lime` — so a colour
+  override passed through `className` beat the variant it was meant to lose to.
+  There are now `onAccent` / `onAccentQuiet` button variants for the lime band.
+- **The hero's wide template previews flickered on hover, and the rail's left
+  edge had no fade.** Both came from the same `mask-image`: a mask pulls every
+  descendant into one layer, so the four live WebGL canvases could not composite
+  independently, and each card's `transition-all` then animated `box-shadow` and
+  `border-color` across them. The fades are ordinary overlay gradients now — one
+  per side, both always drawn, which is also what gives the arrows a ground to
+  sit on — and a card's hover moves nothing but a `transform`.
+- **Caption fonts never loaded on the main thread.** The loader looked for the
+  `FontFaceSet` at `globalThis.fonts`, which is where a *worker* keeps it; a
+  window keeps it on `document`. So the loader silently no-opped and the editor
+  preview drew captions in a fallback face while the export worker drew them in
+  the real one — a preview/export divergence, which this codebase treats as a
+  bug rather than a rough edge. It resolves `document.fonts` first now, with
+  unit tests for both contexts.
 
 ### Removed
 

@@ -149,6 +149,18 @@ Requires Node ≥ 20.11 and pnpm 10. Run `pnpm install` once.
 - `document.fonts.ready` does **not** load unused faces → always
   `document.fonts.load()` per family+weight before render/export, then
   `fonts.check()`; else the first export renders fallback fonts.
+- **There is no `window.fonts`.** A Window keeps its `FontFaceSet` on its
+  Document; only a WorkerGlobalScope keeps one on the global. Code shared by the
+  main thread and a worker must try `document.fonts` first and `self.fonts`
+  second. Reading `globalThis.fonts` alone found nothing on the main thread, so
+  the caption loader took its "no FontFaceSet, nothing to do" branch and every
+  caption in the editor preview rendered in a fallback face while the export
+  worker rendered the real one — a preview/export divergence that no test caught
+  because both halves individually "worked".
+- **`document.fonts.check('32px Anton')` returns `true` for a font that was never
+  loaded** — it answers "can these glyphs be drawn?", and the fallback can draw
+  them. To find out whether a face is actually registered, iterate the set and
+  match on `family`.
 - Canvas `font` cannot express variable-font axes → ship static instances per
   weight for anything the engine or the caption renderer draws. The variable
   faces are for chrome only.

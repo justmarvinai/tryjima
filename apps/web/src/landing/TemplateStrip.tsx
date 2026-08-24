@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import type { Aspect, TemplateDefinition } from "@jima/engine";
 import { getTemplate } from "@jima/templates";
@@ -19,9 +19,28 @@ import { cn, useReducedMotion, Container, ChevronLeftIcon, ChevronRightIcon } fr
  * frame sits underneath as the placeholder, so a card is never blank while its
  * context boots (and is all a reduced-motion visitor ever sees).
  *
- * The rail is held to the page's content column and masked at both ends, so it
- * dissolves into the page instead of hard-cutting; the fade lifts on whichever
- * side has run out of cards.
+ * ── Everything here is written so that hovering a card repaints NOTHING ──
+ *
+ * Four live WebGL canvases sit in this rail. A canvas is normally handed
+ * straight to the compositor, but that only survives while nothing above it
+ * forces a re-rasterisation. Two things used to force one on hover, and the
+ * wide 16:9 cards — nearly three times the pixel area of the 9:16 ones —
+ * flickered as a result:
+ *
+ *   1. The rail carried `edge-fade-x`, a `mask-image`. A mask pulls every
+ *      descendant into the masked layer, so the canvases could not composite
+ *      independently and Chrome re-evaluated layerisation each time a sibling
+ *      card started or finished its lift. The fades are now two overlay
+ *      gradients painted *over* the rail instead — same look, and the canvases
+ *      are left alone.
+ *   2. `transition-all` animated `box-shadow` and `border-color` — both paint
+ *      properties — for 300ms across a box containing a live canvas, and the
+ *      hover chip's `backdrop-blur` read that canvas back every frame.
+ *
+ * So: the lift is a `transform` and nothing else, the border and the shadow are
+ * static or cross-faded through `opacity`, the clip lives on a child that never
+ * moves, and each card is promoted up front rather than at hover time. All four
+ * are composited operations.
  */
 type Item = { id: string; aspect: Aspect };
 
@@ -72,9 +91,12 @@ function StripCard({ card, reduced }: { card: Card; reduced: boolean }) {
         const e = entries[0];
         if (e) setOnScreen(e.isIntersecting);
       },
-      // Low threshold on purpose: a card only half-visible under the edge fade
-      // should still be moving, or the rail reads as "some of these are stills".
-      { threshold: 0.1 },
+      // Zero threshold plus a generous margin, so a card under the edge fade is
+      // still moving (or the rail reads as "some of these are stills") and, more
+      // importantly, so no card ever sits *at* the boundary: at a threshold the
+      // hover lift is itself enough to cross it, which would tear the context
+      // down and rebuild it on every hover.
+      { threshold: 0, rootMargin: "160px" },
     );
     io.observe(el);
     return () => io.disconnect();
@@ -85,20 +107,37 @@ function StripCard({ card, reduced }: { card: Card; reduced: boolean }) {
       ref={ref}
       to={`/motion?t=${card.def.id}`}
       aria-label={`Edit ${card.def.name}`}
-      style={{ height: CARD_H, aspectRatio: RATIO[card.aspect] }}
-      className="group relative shrink-0 overflow-hidden rounded-bento border border-line bg-surface shadow-card transition-all duration-300 hover:-translate-y-1.5 hover:border-lime/40 hover:shadow-pop"
+      // `will-change` up front, not on hover: promoting the card at the moment
+      // the pointer arrives is exactly the re-layerisation we are avoiding.
+      style={{ height: CARD_H, aspectRatio: RATIO[card.aspect], willChange: "transform" }}
+      className="group relative shrink-0 rounded-bento bg-surface shadow-card transition-transform duration-300 ease-out hover:-translate-y-1.5"
     >
-      <PosterThumb
-        def={card.def}
-        aspect={card.aspect}
-        paletteId={card.def.palettes[0]?.id}
-        alt={card.def.name}
-        className="absolute inset-0 h-full w-full"
+      {/* The clip sits on a child that never moves, so the rounded mask over the
+          canvas is computed once instead of every frame of the lift. */}
+      <div className="absolute inset-0 overflow-hidden rounded-bento">
+        <PosterThumb
+          def={card.def}
+          aspect={card.aspect}
+          paletteId={card.def.palettes[0]?.id}
+          alt={card.def.name}
+          className="absolute inset-0 h-full w-full"
+        />
+        {onScreen && !reduced && (
+          <LivePreview def={card.def} paletteId={card.def.palettes[0]?.id} aspect={card.aspect} />
+        )}
+      </div>
+
+      {/* Border and hover accent as stacked rings cross-faded by opacity — a
+          `border-color` transition would repaint the card, canvas included. */}
+      <div className="pointer-events-none absolute inset-0 rounded-bento ring-1 ring-inset ring-line" aria-hidden />
+      <div
+        className="pointer-events-none absolute inset-0 rounded-bento opacity-0 ring-2 ring-inset ring-lime/50 transition-opacity duration-300 group-hover:opacity-100"
+        aria-hidden
       />
-      {onScreen && !reduced && (
-        <LivePreview def={card.def} paletteId={card.def.palettes[0]?.id} aspect={card.aspect} />
-      )}
-      <span className="absolute bottom-2 left-2 z-10 rounded-full bg-void/85 px-2.5 py-1 text-xs font-semibold text-chalk opacity-0 backdrop-blur-sm transition-opacity duration-200 group-hover:opacity-100">
+
+      {/* Opaque, not blurred: a `backdrop-filter` here would read the live canvas
+          back on every frame it is visible. */}
+      <span className="absolute bottom-2 left-2 z-10 rounded-full bg-void/90 px-2.5 py-1 text-xs font-semibold text-chalk opacity-0 transition-opacity duration-200 group-hover:opacity-100">
         {card.def.name}
       </span>
     </Link>
@@ -149,21 +188,35 @@ export default function TemplateStrip() {
         <div
           ref={railRef}
           onScroll={syncEnds}
-          // The mask lifts on whichever side has nothing left to scroll to, so
-          // the first and last cards sit crisp at rest and the fade only ever
-          // means "there is more this way".
-          style={
-            {
-              ...(ends.start ? { "--edge-fade-l": "0px" } : null),
-              ...(ends.end ? { "--edge-fade-r": "0px" } : null),
-            } as CSSProperties
-          }
-          className="edge-fade-x flex items-center gap-4 overflow-x-auto pb-8 pt-4 sm:gap-5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="flex items-center gap-4 overflow-x-auto pb-8 pt-4 sm:gap-5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
           {cards.map((c) => (
             <StripCard key={c.id} card={c} reduced={reduced} />
           ))}
         </div>
+
+        {/* Both edges keep a scrim at all times — it is the ground the arrows sit
+            on, and the previous behaviour (drop the fade entirely on whichever
+            side has run out) left the left-hand arrow at rest floating on a
+            bright card with nothing behind it. "There is more this way" is
+            carried by opacity here, and by the arrow itself, which dims and goes
+            inert when its side is spent. */}
+        {(["left", "right"] as const).map((dir) => {
+          const spent = dir === "left" ? ends.start : ends.end;
+          return (
+            <div
+              key={`fade-${dir}`}
+              aria-hidden
+              className={cn(
+                "pointer-events-none absolute inset-y-0 z-10 w-16 transition-opacity duration-300 sm:w-24",
+                dir === "left"
+                  ? "left-0 bg-gradient-to-r from-void via-void/80 to-transparent"
+                  : "right-0 bg-gradient-to-l from-void via-void/80 to-transparent",
+                spent ? "opacity-55" : "opacity-100",
+              )}
+            />
+          );
+        })}
 
         {(["left", "right"] as const).map((dir) => {
           const spent = dir === "left" ? ends.start : ends.end;
@@ -176,9 +229,11 @@ export default function TemplateStrip() {
               aria-disabled={spent}
               aria-label={dir === "left" ? "Show previous templates" : "Show more templates"}
               className={cn(
-                "absolute top-1/2 z-20 hidden h-11 w-11 -translate-y-1/2 place-items-center rounded-full border border-line bg-surface shadow-pop transition-transform duration-200 sm:grid",
+                "absolute top-1/2 z-20 hidden h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-surface-2 shadow-pop ring-1 ring-inset ring-line-2 transition duration-200 sm:grid",
                 dir === "left" ? "left-0" : "right-0",
-                spent ? "cursor-default text-dim" : "text-chalk hover:scale-110 hover:border-lime/40",
+                spent
+                  ? "cursor-default text-dim opacity-70"
+                  : "text-chalk hover:scale-110 hover:bg-surface-3 hover:ring-lime/45",
               )}
             >
               <Chevron />

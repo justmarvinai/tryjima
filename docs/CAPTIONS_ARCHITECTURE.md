@@ -46,7 +46,7 @@ Convert words → display cues suited to short-form style:
 3. Per frame: draw `VideoFrame` onto an `OffscreenCanvas` at native resolution → `drawCaptions(ctx, frameTimestampSec, state)` → `new VideoFrame(canvas, { timestamp })` → encode. Close every frame promptly (memory!).
 4. Progress = framesProcessed / totalFrames, posted to UI.
 5. Finalize → `Blob` → transfer back → `URL.createObjectURL` → download as `jima-<originalname>.mp4`.
-6. Fonts: worker cannot use `document.fonts`; load fonts in the worker via `new FontFace(...).load()` + `self.fonts.add()` (supported in Chromium workers).
+6. Fonts: worker cannot use `document.fonts`; load fonts in the worker via `new FontFace(...).load()` + `self.fonts.add()` (supported in Chromium workers). `packages/captions/src/fonts/loader.ts` serves both contexts and must resolve the set as `document.fonts` **first**, `self.fonts` second — there is no `window.fonts`, so looking only at the global finds nothing on the main thread and the loader silently no-ops, leaving the editor preview in a fallback face while the export uses the real one. See the pitfall in `CLAUDE.md`.
 
 ## 2. Data Model (`lib/captions/types.ts`)
 
