@@ -97,7 +97,7 @@ function build(ctx: TemplateContext): BuiltTemplate {
   const textColor = str(values.textColor, pc("textColor", "#15171C"));
   const accent = str(values.accent, pc("accent", "#3B6EF0"));
   const title = str(values.title, "Column Rise");
-  // Optional: an empty string from the Studio must stay empty, not fall back.
+  // Optional: an empty string from the editor must stay empty, not fall back.
   const subtitle = str(values.subtitle, "");
   const showAccentEdge = on(values.showAccentEdge);
   const showShadow = on(values.showShadow);

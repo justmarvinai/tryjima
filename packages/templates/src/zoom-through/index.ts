@@ -88,7 +88,7 @@ function build(ctx: TemplateContext): BuiltTemplate {
   const textColor = str(values.textColor, pc("textColor", "#101722"));
   const accent = str(values.accent, pc("accent", "#2E6BF0"));
   const title = str(values.title, "Zoom Through");
-  // Optional: an empty string from the Studio must stay empty, not fall back.
+  // Optional: an empty string from the editor must stay empty, not fall back.
   const subtitle = str(values.subtitle, "");
   const shape = str(values.shape, "rect");
   const showAperture = on(values.showAperture);

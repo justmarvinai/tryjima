@@ -63,7 +63,7 @@ function build(ctx: TemplateContext): BuiltTemplate {
   const messages = asList(values.messages, DEFAULT_MESSAGES);
   const n = messages.length;
   // Optional label: respect an explicit empty string (hide) vs. unset (default).
-  const labelRaw = typeof values.label === "string" ? values.label : "Jima Studio";
+  const labelRaw = typeof values.label === "string" ? values.label : "Jima";
   const label = labelRaw.trim();
 
   root.addChild(new Graphics().rect(0, 0, size.width, size.height).fill(bg));
@@ -156,7 +156,7 @@ export const messageRotator: TemplateDefinition = {
   estimateDuration: computeDuration,
   fields: [
     { key: "messages", type: "textlist", label: "Messages", default: DEFAULT_MESSAGES, minItems: 2, maxItems: 5, maxLength: 40 },
-    { key: "label", type: "text", label: "Label", default: "Jima Studio", maxLength: 24, optional: true },
+    { key: "label", type: "text", label: "Label", default: "Jima", maxLength: 24, optional: true },
     { key: "background", type: "color", label: "Background", default: "", optional: true },
     { key: "textColor", type: "color", label: "Text", default: "", optional: true },
     { key: "accent", type: "color", label: "Accent", default: "", optional: true },

@@ -258,7 +258,7 @@ export function renderCue(
 // ---------------------------------------------------------------------------
 
 /**
- * Realtime SFX player for the Studio preview. Fire cues as the playhead crosses
+ * Realtime SFX player for the Motion preview. Fire cues as the playhead crosses
  * them; needs a user gesture to unlock audio (browser autoplay policy).
  */
 export class SfxPlayer {

@@ -221,7 +221,7 @@ export class TemplateRunner {
   /**
    * Rebuild the scene graph with new values/palette (same renderer + aspect).
    * Reuses already-loaded image textures — add/remove of an image should go
-   * through a full recreate (the Studio keys the preview on image changes).
+   * through a full recreate (the editor keys the preview on image changes).
    */
   /**
    * Load any emoji face the new values need. Call before {@link rebuildScene}

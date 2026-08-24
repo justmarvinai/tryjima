@@ -206,7 +206,7 @@ export interface FontChoice {
 const W_FULL = [400, 500, 600, 700];
 
 /**
- * Headline (display-role) fonts offered in the Studio. All OFL-1.1 and
+ * Headline (display-role) fonts offered in Jima Motion. All OFL-1.1 and
  * self-hosted by the app + render harness, so a swap never renders a fallback.
  * `id` "default" keeps the template's built-in display font (Space Grotesk).
  */
@@ -243,7 +243,7 @@ export function bodyFontChoice(id: string | undefined): FontChoice | undefined {
 
 /**
  * A registry with the "display" (headline) and/or "body" roles optionally
- * swapped to chosen fonts. Serif/mono keep their defaults. Used by the Studio +
+ * swapped to chosen fonts. Serif/mono keep their defaults. Used by the Motion editor +
  * export so a project's fonts follow the whole template.
  */
 export function createFontRegistry(opts?: { headline?: string | undefined; body?: string | undefined }): FontRegistry {

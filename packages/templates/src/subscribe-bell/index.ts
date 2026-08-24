@@ -55,7 +55,7 @@ function build(ctx: TemplateContext): BuiltTemplate {
   const accent = str(values.accent, pc("accent", "#FF0033"));
   const muted = pc("muted", "#E5E5E5");
   const isDark = luminance(bg) < 0.5;
-  const channel = str(values.channel, "Jima Studio");
+  const channel = str(values.channel, "Jima");
   const target = parseTargetNumber(str(values.subscribers, "128000"));
 
   root.addChild(new Graphics().rect(0, 0, size.width, size.height).fill(bg));
@@ -178,7 +178,7 @@ export const subscribeBell: TemplateDefinition = {
   posterTime: 2.4,
   palettes: PALETTES,
   fields: [
-    { key: "channel", type: "text", label: "Channel", default: "Jima Studio", maxLength: 24 },
+    { key: "channel", type: "text", label: "Channel", default: "Jima", maxLength: 24 },
     { key: "subscribers", type: "text", label: "Subscribers", default: "128000", maxLength: 12, help: "Digits — counts up to this." },
     { key: "background", type: "color", label: "Background", default: "", optional: true },
     { key: "textColor", type: "color", label: "Text", default: "", optional: true },

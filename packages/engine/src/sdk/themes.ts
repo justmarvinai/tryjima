@@ -55,7 +55,7 @@ export function themePreset(id: string | undefined): ThemePreset | undefined {
   return id ? THEME_PRESETS.find((t) => t.id === id) : undefined;
 }
 
-// --- contrast helpers (also used by the Studio's readability hint) ---
+// --- contrast helpers (also used by the Motion editor's readability hint) ---
 
 /** Parse #rgb/#rgba/#rrggbb/#rrggbbaa into [r,g,b] 0-255, or null if malformed. */
 export function parseHex(hex: string): [number, number, number] | null {

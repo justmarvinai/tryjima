@@ -12,7 +12,7 @@ import { templateDuration } from "@jima/templates/durations";
  * and would matter more at 600.
  *
  * The set itself was chosen by measuring: a facet matching 3% or 90% of the
- * library isn't a filter. `facets.test.ts` and the Studio smoke suite hold that
+ * library isn't a filter. `facets.test.ts` and the Motion smoke suite hold that
  * line as templates are added.
  */
 export type FacetId =

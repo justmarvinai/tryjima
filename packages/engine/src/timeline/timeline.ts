@@ -258,7 +258,7 @@ export class JimaTimeline {
   /** Write all animated + set properties for time `t` (seconds) onto the targets. */
   /**
    * Dial the *character* of every tween up or down in place — the engine side of
-   * the Studio's Energy control.
+   * the Motion editor's Energy control.
    *
    * Two transforms, both chosen because they leave the endpoints exactly where
    * the template author put them:

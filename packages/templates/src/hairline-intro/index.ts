@@ -88,7 +88,7 @@ function build(ctx: TemplateContext): BuiltTemplate {
   const accent = str(values.accent, pc("accent", "#C2603A"));
   const lineColor = pc("lineColor", textColor);
   const title = str(values.title, "Hairline");
-  // Optional: an empty string from the Studio must stay empty, not fall back.
+  // Optional: an empty string from the editor must stay empty, not fall back.
   const subtitle = str(values.subtitle, "");
   const showTick = on(values.showTick);
   const showInnerRule = on(values.showInnerRule);

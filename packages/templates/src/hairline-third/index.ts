@@ -52,7 +52,7 @@ interface LineOptions {
  * at low alpha. With no plate under the type, that quiet lift is what keeps it
  * readable over busy footage. (Deliberately a twin rather than a `dropShadow`
  * style: the style's texture padding bleeds neighbouring glyphs into the frame
- * whenever the text is rasterised below 1× — exactly what the Studio preview
+ * whenever the text is rasterised below 1× — exactly what the Motion preview
  * and the gallery posters do.)
  */
 function line(fonts: FontRegistry, opts: LineOptions, lifted: boolean, offset: number): Container {

@@ -15,7 +15,7 @@ import {
 const str = (v: unknown, fallback: string): string =>
   typeof v === "string" && v.length > 0 ? v : fallback;
 
-/** "Jima Studio" -> "JS"; a single word falls back to its first two letters. */
+/** "Jima Motion" -> "JM"; a single word falls back to its first two letters. */
 function initialsOf(name: string): string {
   const parts = name.trim().split(/\s+/).filter(Boolean);
   if (parts.length === 0) return "";
@@ -64,7 +64,7 @@ function build(ctx: TemplateContext): BuiltTemplate {
   const bg = str(values.background, pc("background", TRANSPARENT_BG));
   const accent = str(values.accent, pc("accent", "#FF4D1C"));
   const glowColor = str(values.textColor, pc("textColor", "#FFFFFF"));
-  const brand = str(values.brand, "Jima Studio");
+  const brand = str(values.brand, "Jima");
   const corner = str(values.corner, "top-right") as Corner;
   const showPulse = values.showPulse !== false;
 
@@ -156,7 +156,7 @@ export const logoBug: TemplateDefinition = {
   fontRoles: { brand: "display" },
   palettes: PALETTES,
   fields: [
-    { key: "brand", type: "text", label: "Brand / channel name", default: "Jima Studio", maxLength: 30, help: "Only the initials show, e.g. “Jima Studio” → “JS”." },
+    { key: "brand", type: "text", label: "Brand / channel name", default: "Jima", maxLength: 30, help: "Only the initials show, e.g. “Jima Motion” → “JM”." },
     {
       key: "corner",
       type: "select",

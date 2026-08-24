@@ -128,7 +128,7 @@ function build(ctx: TemplateContext): BuiltTemplate {
   const textColor = str(values.textColor, pc("textColor", "#10203A"));
   const accent = str(values.accent, pc("accent", "#2E6BF0"));
   const title = str(values.title, "Liquid");
-  // Optional: an empty string from the Studio must stay empty, not fall back.
+  // Optional: an empty string from the editor must stay empty, not fall back.
   const subtitle = str(values.subtitle, "");
   const showEcho = on(values.showEcho);
   const showRule = on(values.showRule);

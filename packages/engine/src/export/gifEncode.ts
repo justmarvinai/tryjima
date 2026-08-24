@@ -26,7 +26,7 @@ export function encodeGif(frames: GifFrameData[], opts: GifEncodeOptions): Uint8
   const palette = quantize(buildSample(frames), maxColors, { format: GIF_FORMAT });
 
   const gif = GIFEncoder();
-  // Guard fps=0 (Infinity delay → corrupt GIF); the Studio only sends 12/30/60.
+  // Guard fps=0 (Infinity delay → corrupt GIF); the editor only sends 12/30/60.
   const delay = Math.max(1, Math.round(1000 / Math.max(1, opts.fps)));
   for (const frame of frames) {
     const index = applyPalette(frame.rgba, palette, GIF_FORMAT);

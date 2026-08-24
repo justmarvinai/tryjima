@@ -66,7 +66,7 @@ export async function exportVideo(args: VideoExportArgs): Promise<Uint8Array> {
 
   await output.start();
 
-  // Guard fps=0 → Infinity frameDur → NaN timestamps (the Studio only sends
+  // Guard fps=0 → Infinity frameDur → NaN timestamps (the editor only sends
   // 12/30/60; this protects the reusable export API from misuse).
   const frameDur = 1 / Math.max(1, fps);
   try {

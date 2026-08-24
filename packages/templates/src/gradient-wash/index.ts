@@ -77,7 +77,7 @@ function build(ctx: TemplateContext): BuiltTemplate {
   const accent = str(values.accent, pc("accent", "#5B8CFF"));
   const accentSoft = pc("accentSoft", accent);
   const title = str(values.title, "New Season");
-  // Optional: an empty string from the Studio must stay empty, not fall back.
+  // Optional: an empty string from the editor must stay empty, not fall back.
   const subtitle = str(values.subtitle, "");
   const showRule = on(values.showRule);
   const showTint = on(values.showTint);

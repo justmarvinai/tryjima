@@ -225,7 +225,7 @@ export const kineticHeadline: TemplateDefinition = {
   palettes: PALETTES,
   fields: [
     { key: "headline", type: "text", label: "Headline", default: "Say it with motion.", maxLength: 60, shrinkToFit: true },
-    { key: "subline", type: "text", label: "Subline", default: "Made in Jima Studio", maxLength: 80, optional: true },
+    { key: "subline", type: "text", label: "Subline", default: "Made in Jima", maxLength: 80, optional: true },
     {
       key: "style",
       type: "select",

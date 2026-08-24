@@ -42,7 +42,7 @@ export interface SelectOption {
   label: string;
 }
 
-// One editable control. Constraints are optional and type-specific; the Studio
+// One editable control. Constraints are optional and type-specific; the Motion editor
 // renders the right widget per `type` (docs/MOTION_DESIGN_LEGACY.md §7.2).
 export interface TemplateField {
   key: string;
@@ -108,7 +108,7 @@ export interface BuiltTemplate {
   update?: (t: number) => void;
 }
 
-/** A value that references a user image by object URL (from the Studio). */
+/** A value that references a user image by object URL (from the Motion editor). */
 export function isImageRef(v: unknown): v is { url: string } {
   return typeof v === "object" && v !== null && typeof (v as { url?: unknown }).url === "string";
 }

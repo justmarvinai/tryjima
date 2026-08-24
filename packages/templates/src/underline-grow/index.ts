@@ -53,7 +53,7 @@ function build(ctx: TemplateContext): BuiltTemplate {
   const textColor = str(values.textColor, pc("textColor", "#101014"));
   const accent = str(values.accent, pc("accent", "#FF4D1C"));
   const headline = str(values.headline, "Say it clearly");
-  const sublineRaw = typeof values.subline === "string" ? values.subline : "Made in Jima Studio";
+  const sublineRaw = typeof values.subline === "string" ? values.subline : "Made in Jima";
   const subline = sublineRaw.trim();
   const showUnderline = values.showUnderline !== false;
   const underlineWeight = Math.min(0.16, Math.max(0.04, num(values.underlineWeight, 0.09)));
@@ -173,7 +173,7 @@ export const underlineGrow: TemplateDefinition = {
   palettes: PALETTES,
   fields: [
     { key: "headline", type: "text", label: "Headline", default: "Say it clearly", maxLength: 60, shrinkToFit: true },
-    { key: "subline", type: "text", label: "Subline", default: "Made in Jima Studio", maxLength: 80, optional: true },
+    { key: "subline", type: "text", label: "Subline", default: "Made in Jima", maxLength: 80, optional: true },
     { key: "showUnderline", type: "toggle", label: "Underline", default: true },
     { key: "underlineWeight", type: "slider", label: "Underline weight", default: 0.09, min: 0.04, max: 0.16, step: 0.01 },
     { key: "background", type: "color", label: "Background", default: "", optional: true },

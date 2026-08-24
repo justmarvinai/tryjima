@@ -132,7 +132,7 @@ export const fadeCascade: TemplateDefinition = {
   palettes: PALETTES,
   fields: [
     { key: "headline", type: "text", label: "Headline", default: "Say it softly, and let it move.", maxLength: 70, shrinkToFit: true },
-    { key: "subline", type: "text", label: "Subline", default: "Made in Jima Studio", maxLength: 80, optional: true },
+    { key: "subline", type: "text", label: "Subline", default: "Made in Jima", maxLength: 80, optional: true },
     { key: "accentBar", type: "toggle", label: "Accent bar", default: true },
     { key: "background", type: "color", label: "Background", default: "", optional: true },
     { key: "textColor", type: "color", label: "Text", default: "", optional: true },

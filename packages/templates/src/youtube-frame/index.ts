@@ -104,7 +104,7 @@ function build(ctx: TemplateContext): BuiltTemplate {
   const iconGrey = isDark ? "#DDDDDD" : "#5A5A5A";
 
   const title = str(values.title, "How we made this in 60 seconds");
-  const channel = str(values.channel, "Jima Studio");
+  const channel = str(values.channel, "Jima");
   const views = str(values.views, "1.2M views · 2d");
 
   root.addChild(new Graphics().rect(0, 0, size.width, size.height).fill(bg));
@@ -275,7 +275,7 @@ export const youtubeFrame: TemplateDefinition = {
   palettes: PALETTES,
   fields: [
     { key: "title", type: "text", label: "Title", default: "How we made this in 60 seconds", maxLength: 70, shrinkToFit: true },
-    { key: "channel", type: "text", label: "Channel", default: "Jima Studio", maxLength: 24 },
+    { key: "channel", type: "text", label: "Channel", default: "Jima", maxLength: 24 },
     { key: "views", type: "text", label: "Views", default: "1.2M views · 2d", maxLength: 30 },
     { key: "background", type: "color", label: "Background", default: "", optional: true },
     { key: "textColor", type: "color", label: "Text", default: "", optional: true },
