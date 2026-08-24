@@ -1,0 +1,11 @@
+# Jima — https://github.com/justmarvinai/tryjima
+#
+# Everything here is a static client-side app; there is nothing behind a
+# crawler-visible URL that isn't already on the page. The two tools are listed
+# so a crawler reaches them from the one landing page rather than guessing.
+
+User-agent: *
+Allow: /
+
+# Nothing to exclude: there are no accounts, no user content on the server, and
+# no generated URLs — the whole product is four routes and some content pages.

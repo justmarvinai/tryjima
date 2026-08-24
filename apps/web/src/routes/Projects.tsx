@@ -12,6 +12,7 @@ import {
   relativeTime,
   type ProjectEntry,
 } from "@/projects/registry";
+import { storageAvailable } from "@/motion/state/persistence";
 import {
   Badge,
   Button,
@@ -42,11 +43,16 @@ export default function Projects() {
   const [entries, setEntries] = useState<ProjectEntry[]>([]);
   const [filter, setFilter] = useState<Filter>("all");
   const [confirmWipe, setConfirmWipe] = useState(false);
+  // Probed on mount rather than at module load: a private window or a strict
+  // privacy setting blocks storage, and this page would otherwise just look
+  // permanently empty with no explanation.
+  const [canStore, setCanStore] = useState(true);
 
   const refresh = useCallback(() => setEntries(listAllProjects()), []);
 
   useEffect(() => {
     document.title = "Your projects — Jima";
+    setCanStore(storageAvailable());
     refresh();
   }, [refresh]);
 
@@ -88,6 +94,12 @@ export default function Projects() {
               </div>
             )}
           </div>
+
+          {!canStore && (
+            <div className="mt-8">
+              <NoStorageNotice />
+            </div>
+          )}
 
           {entries.length === 0 ? (
             <div className="mt-12 rounded-bento border border-line bg-surface">
@@ -249,7 +261,7 @@ function ProjectCard({ entry, onDeleted }: { entry: ProjectEntry; onDeleted: () 
   );
 }
 
-/** Exported for the tools' own empty states. */
+/** Also used by the tools' own empty states. */
 export function NoStorageNotice() {
   return (
     <Notice tone="warning" title="Storage is unavailable">

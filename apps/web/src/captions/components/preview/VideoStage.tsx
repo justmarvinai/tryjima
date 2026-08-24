@@ -66,7 +66,9 @@ export function VideoStage() {
   return (
     <div className="flex h-full w-full flex-col items-center justify-center gap-4">
       <div
-        className="relative overflow-hidden rounded-[22px] bg-black shadow-pop ring-1 ring-black/5"
+        // The video is the bright thing on a dark stage, so it gets a real drop
+        // shadow and a visible hairline — a black ring on near-black was invisible.
+        className="relative overflow-hidden rounded-[22px] bg-black shadow-stage ring-1 ring-line-2"
         style={{ aspectRatio: String(aspect), height: 'min(100%, 64vh)', maxWidth: '100%' }}
       >
         <video ref={setVideoEl} src={objectUrl} playsInline className="h-full w-full object-contain" />
