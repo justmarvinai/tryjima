@@ -12,6 +12,14 @@ export interface ExportResult {
   audio: AudioMode;
 }
 
+/** Thrown into the run's promise when `cancel()` is called. */
+export class CancelledError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'CancelledError';
+  }
+}
+
 export interface ExportHandle {
   promise: Promise<ExportResult>;
   /** Abort and tear down the worker. */
@@ -34,8 +42,10 @@ export function exportVideo(
   });
 
   let settled = false;
+  let rejectRun: (reason: unknown) => void = () => undefined;
 
   const promise = new Promise<ExportResult>((resolve, reject) => {
+    rejectRun = reject;
     const finish = (fn: () => void) => {
       settled = true;
       worker.terminate();
@@ -74,6 +84,11 @@ export function exportVideo(
     if (settled) return;
     settled = true;
     worker.terminate();
+    // Settle the promise. Terminating the worker alone left it pending FOREVER,
+    // so the `await` in the calling action never returned, its `finally` never
+    // ran, and the whole closure — file, cues, callbacks — was retained for the
+    // life of the page. The doc comment claimed this already happened.
+    rejectRun(new CancelledError('export cancelled'));
   };
 
   return { promise, cancel };

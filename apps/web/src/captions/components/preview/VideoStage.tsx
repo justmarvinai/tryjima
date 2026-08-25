@@ -49,9 +49,14 @@ export function VideoStage() {
     if (!videoEl) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.code !== 'Space' && e.key !== ' ') return;
+      // A modal is open — Space belongs to it, not to the video behind it.
+      if (document.querySelector('[role="dialog"][aria-modal="true"]')) return;
       const el = document.activeElement as HTMLElement | null;
       const tag = el?.tagName.toLowerCase();
-      if (tag === 'input' || tag === 'textarea' || tag === 'button' || el?.isContentEditable) return;
+      if (tag === 'input' || tag === 'textarea' || tag === 'button' || tag === 'select' || el?.isContentEditable) {
+        return;
+      }
+      if (el?.closest('[role="slider"], [role="switch"], [role="radio"], a[href]')) return;
       e.preventDefault();
       if (videoEl.paused) void videoEl.play();
       else videoEl.pause();

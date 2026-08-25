@@ -86,6 +86,11 @@ export const createExportSlice: StateCreator<AppStore, [], [], ExportSlice> = (s
   cancelExport: () => {
     activeHandle?.cancel();
     activeHandle = null;
+    // Free a finished result if there is one — `dismissExport` did this and
+    // `cancelExport` did not, so the one path that can be reached from an
+    // already-`done` state leaked the blob.
+    const prevUrl = get().exportState.resultUrl;
+    if (prevUrl) URL.revokeObjectURL(prevUrl);
     set({ exportState: initialExport });
   },
 

@@ -257,7 +257,7 @@ export function drawCaptions(
   const lineHeight = fontSize * 1.18;
   const { family, weight } = resolveFont(style.fontFamily);
 
-  ctx.font = `${weight} ${fontSize}px "${family}"`;
+  ctx.font = `${weight} ${fontSize}px "${family}", sans-serif`;
   ctx.textBaseline = 'middle';
   ctx.textAlign = 'left';
 
@@ -272,9 +272,32 @@ export function drawCaptions(
   const lines = layoutLines(renderWords, (s) => ctx.measureText(s).width, wrapWidth);
   if (lines.length === 0) return;
 
+  // `maxLines` is a cap, not a hint. Greedy wrapping happily produced three or
+  // four lines from a wide font in a narrow frame while the style said "2", and
+  // the block then ran off the bottom of the video. Over the cap, fold the
+  // surplus lines back into the last allowed one and shrink the whole block to
+  // fit instead — the same treatment 1-line mode already gets.
+  const capped = lines.slice(0, style.maxLines);
+  const overflow = lines.slice(style.maxLines);
+  if (overflow.length > 0) {
+    const last = capped[capped.length - 1];
+    if (last) {
+      const spaceWidth = ctx.measureText(' ').width;
+      let cursor = last.width;
+      for (const line of overflow) {
+        for (const word of line.words) {
+          cursor += spaceWidth;
+          last.words.push({ ...word, x: cursor });
+          cursor += word.width;
+        }
+      }
+      last.width = cursor;
+    }
+  }
+
   const centerX = videoWidth / 2;
   const centerY = (videoHeight * style.positionYPct) / 100;
-  const blockTop = centerY - (lines.length * lineHeight) / 2;
+  const blockTop = centerY - (capped.length * lineHeight) / 2;
 
   const activeWord = style.highlightEnabled ? findActiveWordIndex(cue.words, timeSec) : -1;
   const strokeWidth = (fontSize * style.strokeWidthPct) / 100;
@@ -282,7 +305,9 @@ export function drawCaptions(
   // Entrance animation + 1-line fit, applied as one transform around the block
   // center so preview and export stay identical.
   const anim = animationState(style.animation, timeSec - cue.start);
-  const shrink = style.maxLines === 1 ? fitScale(lines[0]?.width ?? 0, maxWidth) : 1;
+  // Shrink for 1-line mode, and for any line the cap forced to over-run.
+  const widest = capped.reduce((w, l) => Math.max(w, l.width), 0);
+  const shrink = style.maxLines === 1 || overflow.length > 0 ? fitScale(widest, maxWidth) : 1;
   const totalScale = anim.scale * shrink;
 
   ctx.save();
@@ -299,7 +324,7 @@ export function drawCaptions(
     ctx.fillStyle = rgba(style.backgroundColor, style.backgroundOpacity);
     const padX = fontSize * 0.35;
     const pillH = fontSize * 1.3;
-    lines.forEach((line, li) => {
+    capped.forEach((line, li) => {
       const lineCenterY = blockTop + li * lineHeight + lineHeight / 2;
       const w = line.width + padX * 2;
       roundRectPath(
@@ -317,7 +342,7 @@ export function drawCaptions(
   // Words: stroke then fill, highlighting the active word.
   ctx.lineJoin = 'round';
   ctx.miterLimit = 2;
-  lines.forEach((line, li) => {
+  capped.forEach((line, li) => {
     const lineCenterY = blockTop + li * lineHeight + lineHeight / 2;
     const lineStartX = centerX - line.width / 2;
     for (const word of line.words) {

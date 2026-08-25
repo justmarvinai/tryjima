@@ -87,9 +87,8 @@ const PACK_KEY = "jima.soundPack";
 const BRAND_KEY = "jima.brandKit";
 
 function readBrandKit(): BrandKit | null {
-  if (typeof localStorage === "undefined") return null;
   try {
-    const raw = localStorage.getItem(BRAND_KEY);
+    const raw = readPref(BRAND_KEY);
     if (!raw) return null;
     const p = JSON.parse(raw) as unknown;
     if (!p || typeof p !== "object") return null;
@@ -106,18 +105,41 @@ function readBrandKit(): BrandKit | null {
   }
 }
 
+/*
+ * `typeof localStorage !== "undefined"` is NOT a sufficient guard. A browser
+ * set to block site data (Safari's private mode, "block all cookies") still
+ * exposes the object and THROWS on access — and these run while the store
+ * module is being evaluated, so an unguarded read took the whole Motion route
+ * down with it rather than losing a preference. Everything else in this app
+ * (favourites, project persistence) already reads and writes through a
+ * try/catch; these three were the outliers.
+ */
+function readPref(key: string): string | null {
+  try {
+    return localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
+function writePref(key: string, value: string): void {
+  try {
+    localStorage.setItem(key, value);
+  } catch {
+    // Blocked or full — the preference just doesn't survive the session.
+  }
+}
+
 function readMusicPref(): boolean {
-  if (typeof localStorage === "undefined") return false;
-  return localStorage.getItem(MUSIC_KEY) === "1"; // default off — it is an addition
+  return readPref(MUSIC_KEY) === "1"; // default off — it is an addition
 }
 
 function readSoundPref(): boolean {
-  if (typeof localStorage === "undefined") return true;
-  return localStorage.getItem(SOUND_KEY) !== "0"; // default on
+  return readPref(SOUND_KEY) !== "0"; // default on
 }
+
 function readPackPref(): SoundPack {
-  if (typeof localStorage === "undefined") return "pop";
-  const v = localStorage.getItem(PACK_KEY);
+  const v = readPref(PACK_KEY);
   return v === "soft" || v === "retro" || v === "pop" ? v : "pop";
 }
 
@@ -339,22 +361,25 @@ export const useMotionStore = create<MotionStore>((set, get) => ({
 
   setLoop: (loop) => {
     const s = get();
+    // Guarded like setAspect/setPalette/setFont — without it, re-selecting the
+    // current value pushed an undo entry that undoes to itself.
+    if (loop === s.loop) return;
     set({ past: [...s.past, snapshot(s)].slice(-HISTORY_LIMIT), future: [], loop, lastEditKey: null });
   },
 
   // Sound is a global preference (like volume): persisted, and kept out of the
   // per-template undo history and snapshots.
   setMusic: (on) => {
-    if (typeof localStorage !== "undefined") localStorage.setItem(MUSIC_KEY, on ? "1" : "0");
+    writePref(MUSIC_KEY, on ? "1" : "0");
     set({ music: on });
   },
 
   setSound: (on) => {
-    if (typeof localStorage !== "undefined") localStorage.setItem(SOUND_KEY, on ? "1" : "0");
+    writePref(SOUND_KEY, on ? "1" : "0");
     set({ sound: on });
   },
   setSoundPack: (pack) => {
-    if (typeof localStorage !== "undefined") localStorage.setItem(PACK_KEY, pack);
+    writePref(PACK_KEY, pack);
     set({ soundPack: pack });
   },
 
@@ -373,13 +398,8 @@ export const useMotionStore = create<MotionStore>((set, get) => ({
     if (accent) kit.accent = accent;
     if (s.font) kit.font = s.font;
     if (s.bodyFont) kit.bodyFont = s.bodyFont;
-    if (typeof localStorage !== "undefined") {
-      try {
-        localStorage.setItem(BRAND_KEY, JSON.stringify(kit));
-      } catch {
-        // Storage full / blocked — keep it in memory for this session.
-      }
-    }
+    // Storage full / blocked — keep it in memory for this session.
+    writePref(BRAND_KEY, JSON.stringify(kit));
     set({ brandKit: kit });
   },
 
@@ -406,7 +426,11 @@ export const useMotionStore = create<MotionStore>((set, get) => ({
   },
 
   clearBrandKit: () => {
-    if (typeof localStorage !== "undefined") localStorage.removeItem(BRAND_KEY);
+    try {
+      localStorage.removeItem(BRAND_KEY);
+    } catch {
+      /* blocked — the in-memory clear below is what matters */
+    }
     set({ brandKit: null });
   },
 
@@ -421,14 +445,20 @@ export const useMotionStore = create<MotionStore>((set, get) => ({
       // concrete swatches, not blank color fields, after a reset.
       values: { ...resolveValues(s.def), ...paletteColorValues(s.def, paletteId) },
       paletteId,
+      // Every knob the Motion tab owns, not just some of them. Speed, font and
+      // loop were restored here while energy, trim and hold silently were not —
+      // so "Reset template" handed back a template that was still trimmed, still
+      // held and still at the wrong energy. Aspect is a canvas/output choice and
+      // is intentionally preserved.
       speed: 1,
-      // Also restore the other template-content defaults so "Reset" is complete
-      // and consistent (previously font + loop were left untouched). Aspect is a
-      // canvas/output choice and is intentionally preserved.
+      energy: 1,
+      trim: 0,
+      hold: 0,
       font: undefined,
       bodyFont: undefined,
       loop: s.def.loopable,
       lastEditKey: null,
+      lastEditAt: 0,
     });
   },
 

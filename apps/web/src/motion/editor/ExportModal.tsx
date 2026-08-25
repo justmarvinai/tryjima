@@ -57,6 +57,43 @@ export function ExportModal({
   const abortRef = useRef<AbortController | null>(null);
   const resultUrlRef = useRef<string | null>(null);
   const userPickedFormat = useRef(false);
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  // Move focus into the dialog and hand it back on close. `role="dialog"` and
+  // `aria-modal` were already here, but focus stayed on the Export button
+  // behind the scrim — so a keyboard user opened the modal and then tabbed
+  // through the editor underneath it.
+  useEffect(() => {
+    const restoreTo = document.activeElement as HTMLElement | null;
+    const first = panelRef.current?.querySelector<HTMLElement>(
+      'button:not([disabled]), a[href], input:not([disabled]), select, [tabindex]:not([tabindex="-1"])',
+    );
+    (first ?? panelRef.current)?.focus();
+
+    // Keep Tab inside the panel while it is open.
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Tab") return;
+      const items = panelRef.current?.querySelectorAll<HTMLElement>(
+        'button:not([disabled]), a[href], input:not([disabled]), select, [tabindex]:not([tabindex="-1"])',
+      );
+      if (!items || items.length === 0) return;
+      const firstItem = items[0]!;
+      const lastItem = items[items.length - 1]!;
+      const active = document.activeElement;
+      if (e.shiftKey && (active === firstItem || !panelRef.current?.contains(active))) {
+        e.preventDefault();
+        lastItem.focus();
+      } else if (!e.shiftKey && active === lastItem) {
+        e.preventDefault();
+        firstItem.focus();
+      }
+    };
+    document.addEventListener("keydown", onKey, true);
+    return () => {
+      document.removeEventListener("keydown", onKey, true);
+      restoreTo?.focus?.();
+    };
+  }, []);
 
   // Default to the best available format once caps are known — but never
   // overwrite a choice the user already made (detection can resolve slowly).
@@ -142,14 +179,20 @@ export function ExportModal({
       className="fixed inset-0 z-50 flex items-center justify-center bg-void/75 p-4 backdrop-blur-sm"
       role="dialog"
       aria-modal="true"
-      aria-label="Export"
+      aria-labelledby="motion-export-title"
       onClick={(e) => {
         if (e.target === e.currentTarget && phase !== "rendering") onClose();
       }}
     >
-      <div className="w-full max-w-lg overflow-hidden rounded-bento bg-paper shadow-bold">
+      <div
+        ref={panelRef}
+        tabIndex={-1}
+        className="w-full max-w-lg overflow-hidden rounded-bento bg-paper shadow-bold focus:outline-none"
+      >
         <div className="flex items-center justify-between border-b border-mist px-6 py-4">
-          <h2 className="font-display text-2xl font-extrabold text-ink headline-xl">Export</h2>
+          <h2 id="motion-export-title" className="font-display text-2xl font-extrabold text-ink headline-xl">
+            Export
+          </h2>
           {phase !== "rendering" && (
             <Button variant="ghost" size="sm" onClick={onClose} aria-label="Close">
               ✕

@@ -25,7 +25,12 @@ export function TemplateRail({
               onClick={() => onSelect(t)}
               aria-current={active}
               title={t.name}
-              className={`overflow-hidden rounded-xl border-2 transition-all ${
+              // `shrink-0` is load-bearing. These are flex items in a
+              // fixed-height column, and 495 of them overflow it by two orders
+              // of magnitude — with the default `flex-shrink: 1` every button
+              // was squashed to its 4px border box and the whole rail rendered
+              // as a stack of grey slivers with no thumbnail visible at all.
+              className={`shrink-0 overflow-hidden rounded-xl border-2 transition-all ${
                 active ? "border-lime shadow-glow" : "border-line opacity-75 hover:opacity-100 hover:border-line-2"
               }`}
             >

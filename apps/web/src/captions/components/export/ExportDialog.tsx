@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { useAppStore } from '../../state/store';
 import { Button, ProgressBar, buttonClasses } from '@/ui';
 
@@ -25,16 +26,17 @@ export function ExportDialog() {
   const dismissExport = useAppStore((s) => s.dismissExport);
   const startExport = useAppStore((s) => s.startExport);
 
-  if (status === 'idle') return null;
-
   const running = status === 'preparing' || status === 'encoding' || status === 'finalizing';
+  const open = status !== 'idle';
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-void/75 p-4 backdrop-blur-md">
-      <div className="fade-up w-full max-w-sm rounded-[24px] border border-line bg-surface p-6 shadow-pop">
+    <ModalShell open={open} onDismiss={running ? cancelExport : dismissExport} titleId="export-dialog-title">
+      <div>
         {running && (
           <div>
-            <h2 className="font-display text-xl font-bold text-chalk">Exporting your video</h2>
+            <h2 id="export-dialog-title" className="font-display text-xl font-bold text-chalk">
+              Exporting your video
+            </h2>
             <p className="mt-1 text-sm text-dim">{PHASE_LABEL[status]}</p>
             <div className="mt-4">
               <ProgressBar value={progress} indeterminate={status !== 'encoding'} />
@@ -53,7 +55,9 @@ export function ExportDialog() {
 
         {status === 'done' && (
           <div>
-            <h2 className="font-display text-xl font-bold text-chalk">Your video is ready</h2>
+            <h2 id="export-dialog-title" className="font-display text-xl font-bold text-chalk">
+              Your video is ready
+            </h2>
             <p className="mt-1 text-sm text-dim">
               Full quality, captions burned in. {audio ? AUDIO_NOTE[audio] : ''}
             </p>
@@ -76,7 +80,9 @@ export function ExportDialog() {
 
         {status === 'error' && (
           <div>
-            <h2 className="font-display text-xl font-bold text-chalk">Export failed</h2>
+            <h2 id="export-dialog-title" className="font-display text-xl font-bold text-chalk">
+              Export failed
+            </h2>
             <p className="mt-2 rounded-input border border-error/25 bg-error/[0.04] px-3 py-2 text-sm text-error">
               {error ?? 'Something went wrong.'}
             </p>
@@ -92,6 +98,85 @@ export function ExportDialog() {
             </button>
           </div>
         )}
+      </div>
+    </ModalShell>
+  );
+}
+
+/**
+ * The modal wrapper the export dialog was missing entirely.
+ *
+ * It was a bare `fixed inset-0` overlay: visually blocking, but with no dialog
+ * role, no `aria-modal`, no focus move, no focus trap, no Escape and no focus
+ * restore. A screen reader never learned an export had started, and a keyboard
+ * user could tab straight through to the editor behind the scrim and change the
+ * style of a video that was already encoding.
+ */
+function ModalShell({
+  open,
+  onDismiss,
+  titleId,
+  children,
+}: {
+  open: boolean;
+  onDismiss: () => void;
+  titleId: string;
+  children: React.ReactNode;
+}) {
+  const panelRef = useRef<HTMLDivElement>(null);
+  const restoreTo = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    restoreTo.current = document.activeElement as HTMLElement | null;
+    // Focus the first control in the panel, or the panel itself.
+    const focusable = panelRef.current?.querySelector<HTMLElement>(
+      'a[href], button:not([disabled]), input, [tabindex]:not([tabindex="-1"])',
+    );
+    (focusable ?? panelRef.current)?.focus();
+
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        onDismiss();
+        return;
+      }
+      if (e.key !== 'Tab') return;
+      const items = panelRef.current?.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      );
+      if (!items || items.length === 0) return;
+      const first = items[0]!;
+      const last = items[items.length - 1]!;
+      const active = document.activeElement;
+      if (e.shiftKey && (active === first || !panelRef.current?.contains(active))) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && active === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener('keydown', onKey, true);
+    return () => {
+      document.removeEventListener('keydown', onKey, true);
+      restoreTo.current?.focus?.();
+    };
+  }, [open, onDismiss]);
+
+  if (!open) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-void/75 p-4 backdrop-blur-md">
+      <div
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        tabIndex={-1}
+        className="fade-up w-full max-w-sm rounded-[24px] border border-line bg-surface p-6 shadow-pop focus:outline-none"
+      >
+        {children}
       </div>
     </div>
   );

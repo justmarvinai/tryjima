@@ -37,8 +37,12 @@ export const createProjectSlice: StateCreator<AppStore, [], [], ProjectSlice> = 
     const previousUrl = get().project.objectUrl;
     if (previousUrl) URL.revokeObjectURL(previousUrl);
 
-    // A new video invalidates any existing transcript.
+    // A new video invalidates any existing transcript — and the previous
+    // clip's transport. Leaving `playback` alone meant the new video mounted
+    // carrying the old one's duration, playhead and (worst) its `seekTarget`,
+    // so it jumped straight to whatever cue was last clicked in the old clip.
     get().resetTranscription();
+    get().resetPlayback();
 
     set({ project: { ...emptyProject, status: 'validating', file } });
 
@@ -63,6 +67,7 @@ export const createProjectSlice: StateCreator<AppStore, [], [], ProjectSlice> = 
     const previousUrl = get().project.objectUrl;
     if (previousUrl) URL.revokeObjectURL(previousUrl);
     get().resetTranscription();
+    get().resetPlayback();
     get().dismissExport();
     set({ project: emptyProject });
   },

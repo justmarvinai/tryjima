@@ -45,9 +45,19 @@ function isAudioCodec(codec: string): codec is AudioCodec {
 }
 
 async function runExport(request: ExportRequest): Promise<void> {
-  const { file, cues, style } = request;
+  const input = new Input({ source: new BlobSource(request.file), formats: ALL_FORMATS });
+  try {
+    await encode(request, input);
+  } finally {
+    // `dispose()` used to sit on the success path only, so any failure — an
+    // undecodable track, a rejected encoder config — leaked the Input and its
+    // decoders for the life of the worker.
+    input.dispose();
+  }
+}
 
-  const input = new Input({ source: new BlobSource(file), formats: ALL_FORMATS });
+async function encode(request: ExportRequest, input: Input): Promise<void> {
+  const { cues, style } = request;
   const outputFormat = new Mp4OutputFormat({ fastStart: 'in-memory' });
 
   post({ type: 'phase', phase: 'preparing' });
@@ -106,7 +116,7 @@ async function runExport(request: ExportRequest): Promise<void> {
       encodedAudio = new EncodedAudioPacketSource(inCodec);
       output.addAudioTrack(encodedAudio);
       audioMode = 'passthrough';
-    } else {
+    } else if (await audioTrack.canDecode().catch(() => false)) {
       const [numberOfChannels, sampleRate] = await Promise.all([
         audioTrack.getNumberOfChannels(),
         audioTrack.getSampleRate(),
@@ -119,6 +129,9 @@ async function runExport(request: ExportRequest): Promise<void> {
       }
       // else: export video-only (audioMode stays 'none').
     }
+    // A track we can neither copy nor decode also falls through to video-only.
+    // Attempting the re-encode anyway failed the whole export with a decoder
+    // error, when dropping the audio is both possible and already handled.
   }
 
   await output.start();
@@ -150,14 +163,26 @@ async function runExport(request: ExportRequest): Promise<void> {
 
   const scene = { cues, style, videoWidth: width, videoHeight: height };
   const videoSink = new VideoSampleSink(videoTrack);
+  // One message per frame is ~1,800 postMessages and as many React renders for
+  // a 60s clip, all landing during the heaviest part of the work. Half a percent
+  // is finer than the progress bar can show.
+  let lastPosted = -1;
   for await (const sample of videoSink.samples()) {
-    const t = shift(sample.timestamp);
-    sample.draw(canvasCtx, 0, 0, width, height); // rotation-aware, fills the frame
-    // Composite captions on top — DON'T clear, or we'd erase the video frame.
-    drawCaptions(canvasCtx, t, scene, { clear: false });
-    await videoSource.add(t, sample.duration);
-    post({ type: 'progress', progress: exportProgress(t, duration) });
-    sample.close();
+    try {
+      const t = shift(sample.timestamp);
+      sample.draw(canvasCtx, 0, 0, width, height); // rotation-aware, fills the frame
+      // Composite captions on top — DON'T clear, or we'd erase the video frame.
+      drawCaptions(canvasCtx, t, scene, { clear: false });
+      await videoSource.add(t, sample.duration);
+      const progress = exportProgress(t, duration);
+      if (progress - lastPosted >= 0.005 || progress >= 1) {
+        lastPosted = progress;
+        post({ type: 'progress', progress });
+      }
+    } finally {
+      // Every VideoFrame gets closed, including on the way out of a throw.
+      sample.close();
+    }
   }
 
   post({ type: 'phase', phase: 'finalizing' });
@@ -167,7 +192,6 @@ async function runExport(request: ExportRequest): Promise<void> {
   if (!buffer) throw new Error('Export produced no output.');
   const mimeType = await output.getMimeType().catch(() => 'video/mp4');
 
-  input.dispose();
   post({ type: 'done', buffer, mimeType, audio: audioMode }, [buffer]);
 }
 

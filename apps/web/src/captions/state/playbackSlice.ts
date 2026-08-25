@@ -13,6 +13,8 @@ export interface PlaybackState {
 
 export interface PlaybackSlice {
   playback: PlaybackState;
+  /** Drop every trace of the previous clip's transport. */
+  resetPlayback: () => void;
   /** Called by the video element to mirror its state into the store. */
   setPlayback: (patch: Partial<Omit<PlaybackState, 'seekTarget' | 'seekNonce'>>) => void;
   /** Request the video jump to `time` (used by click-to-seek in the transcript). */
@@ -29,6 +31,8 @@ const initialPlayback: PlaybackState = {
 
 export const createPlaybackSlice: StateCreator<AppStore, [], [], PlaybackSlice> = (set) => ({
   playback: initialPlayback,
+
+  resetPlayback: () => set({ playback: initialPlayback }),
 
   setPlayback: (patch) => set((s) => ({ playback: { ...s.playback, ...patch } })),
 
